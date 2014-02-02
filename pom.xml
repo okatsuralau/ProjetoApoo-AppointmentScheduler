@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ifrn.tads.pds</groupId>
-	<artifactId>AppointmentScheduler</artifactId>
+	<artifactId>ProjetoApoo-AppointmentScheduler</artifactId>
 	<packaging>war</packaging>
 	<version>1.0.0-SNAPSHOT</version>
 	<name>AppointmentScheduler Maven Webapp</name>
@@ -46,6 +46,12 @@
 		    <groupId>opensymphony</groupId>
 		    <artifactId>sitemesh</artifactId>
 		    <version>${opensymphony.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20131018</version>
 		</dependency>
 		
 		
@@ -318,4 +324,8 @@
 	<build>
 		<finalName>AppointmentScheduler</finalName>
 	</build>
+	<organization>
+		<name>IFRN</name>
+		<url>ifrn.edu.br</url>
+	</organization>
 </project>
