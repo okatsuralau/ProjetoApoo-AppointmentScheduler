@@ -1,0 +1,92 @@
+//
+// Buttons
+// --------------------------------------------------
+@import "@{path-bootstrap}buttons.less";
+
+//
+// Buttons
+// --------------------------------------------------
+
+// .btn-orange {
+//   .buttonBackground(@color_orange, darken(@color_orange,5%));
+// }
+
+// .btn-pink {
+//   .buttonBackground(@color_pink, darken(@color_pink,5%));
+// }
+
+// .btn-yellow {
+//   .buttonBackground(@color_yellow_gold, darken(@color_yellow_gold,5%));
+// }
+
+/*.btn-green {
+  .buttonBackground(@color_green_lemon, @color_green_lemon_dark);
+}
+
+.btn-blue {
+  .buttonBackground(@color_blue, @color_blue_darker);
+}
+
+.btn-blue-light {
+  .buttonBackground(@color_blue, darken(@color_blue, 6%));
+}
+
+.btn-blue-pool {
+  .buttonBackground(@color_blue_pool, darken(@color_blue_pool, 6%), @white);
+}*/
+
+.btn-transparent{
+    background: transparent !important;
+    border: 0 none;
+    .box-shadow(0 0);
+}
+
+.btn-circle{
+	> .btn{
+		.border-radius(~"100% !important");
+		padding: 8px;
+	}
+}
+
+
+// Alternate buttons
+// --------------------------------------------------
+
+.btn-black{
+	.button-variant(white; @navbar-inverse-bg; @navbar-inverse-border);
+}
+
+
+// Form
+// --------------------------------------------------
+// @link: http://dan.doezema.com/2012/03/twitter-bootstrap-radio-button-form-inputs/
+.btn-toggle{
+    // Active state
+    button:hover,
+    button.active,
+    button:active {
+        background-image: none;
+        // .button-variant(@btn-primary-color; @btn-primary-bg; @btn-primary-border);
+    }
+
+    button{
+        text-align: left;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .btn {
+        position:relative;
+        input[type=radio],
+        input[type=checkbox]{
+            display:    block;
+            position:   absolute;
+            top:        0;
+            left:       0;
+            margin:     0;
+            width:      100%;
+            height:     100%;
+            .opacity(0);
+        }
+    }
+}

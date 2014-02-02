@@ -1,0 +1,26 @@
+//
+// Responsive: Utility classes
+// --------------------------------------------------
+@import "@{path-bootstrap}responsive-utilities.less";
+
+// Visibility utilities
+
+.visible-xss {
+  .responsive-invisibility();
+  @media (max-width: (@screen-xs - 1)) {
+    .responsive-visibility();
+  }
+}
+
+.hidden-xss {
+  .responsive-visibility();
+  @media (max-width: (@screen-xs - 1)) {
+    .responsive-invisibility();
+  }
+}
+
+//
+// Adaptações do site
+//
+
+// ...
