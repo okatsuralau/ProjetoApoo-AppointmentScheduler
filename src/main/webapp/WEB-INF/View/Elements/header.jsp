@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<c:url var="root" value='/' />
 
 <header id="header" class="navbar navbar-default navbar-fixed-top" role="navigation">
     <div class="container">

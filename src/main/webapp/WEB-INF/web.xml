@@ -6,7 +6,7 @@
 	<!-- xmlns="http://java.sun.com/xml/ns/j2ee"  -->
 	
 	<!-- Define a página inicial -->
-	<display-name>PDS TADS, IFRN - AppointmentScheduler</display-name>
+	<display-name>PDS TADS, IFRN - PdsAppointmentScheduler</display-name>
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>   
 	</welcome-file-list>

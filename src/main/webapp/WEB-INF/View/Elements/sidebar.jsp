@@ -1,5 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <c:url var="root" value='/' />
+<c:set var="root" value='${root}' />
 
 <nav id="mp-menu" class="mp-menu">
     <div class="mp-level">
