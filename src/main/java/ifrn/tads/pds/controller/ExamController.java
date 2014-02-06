@@ -1,7 +1,7 @@
 package ifrn.tads.pds.controller;
 
-import ifrn.tads.pds.domain.Skin;
-import ifrn.tads.pds.service.SkinService;
+import ifrn.tads.pds.domain.Exam;
+import ifrn.tads.pds.service.ExamService;
 
 import java.util.List;
 
@@ -21,44 +21,46 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+// TODO: implementar forms
+
 @Controller
-@RequestMapping("/skin")
-public class SkinController {
+@RequestMapping("/exam")
+public class ExamController {
 
 	protected static Logger logger = Logger.getLogger("controller");
 
-	@Resource(name="skinService")
-	private SkinService skinService;
-	private String alias = "skin";
+	@Resource(name="examService")
+	private ExamService examService;
+	private String alias = "exam";
 
 	@RequestMapping(value = {"", "/", "/index"})
 	public ModelAndView index(ModelMap model, HttpServletRequest request){
-    	List<Skin> skins = skinService.findAll();
-    	model.addAttribute("title_for_layout", "Etnias");
-    	return new ModelAndView(this.alias + "/index", "skins", skins);
+    	List<Exam> exam = examService.findAll();
+    	model.addAttribute("title_for_layout", "Médicos");
+    	return new ModelAndView(this.alias + "/index", "exam", exam);
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.GET)
-	public ModelAndView add(@ModelAttribute("Ofice") Skin skin, ModelMap model) {
+	public ModelAndView add(@ModelAttribute("Ofice") Exam exam, ModelMap model) {
 		model.addAttribute("action", "add");
-		model.addAttribute("title_for_layout", "Adicionar nova etnia");
-		return new ModelAndView(this.alias + "/form", "skin", new Skin());
+		model.addAttribute("title_for_layout", "Adicionar novo exame");
+		return new ModelAndView(this.alias + "/form", "exam", new Exam());
 	}
 
-	@RequestMapping(value = "/add", method = RequestMethod.POST)
-	public String addPost(@Valid Skin skin, BindingResult result, ModelMap model, RedirectAttributes ra){
+	/*@RequestMapping(value = "/add", method = RequestMethod.POST)
+	public String addPost(@Valid Exam exam, BindingResult result, ModelMap model, RedirectAttributes ra){
 		model.addAttribute("action", "add");
-		model.addAttribute("title_for_layout", "Adicionar nova etnia");
+		model.addAttribute("title_for_layout", "Adicionar novo exame");
 
 		if(result.hasErrors()){
 			logger.debug("Dados invalidos");
-			model.put("skin", skin);
+			model.put("exam", exam);
 			return this.alias + "/form";
 
 		}else{
-			if(!skinService.add(skin)){
+			if(!examService.add(exam)){
 				model.addAttribute("message", "Não foi possível salvar");
-				model.put("skin", skin);
+				model.put("exam", exam);
 				return this.alias + "/form";
 			}else{
 				model.addAttribute("message", "O registro foi salvo com sucesso");
@@ -66,43 +68,43 @@ public class SkinController {
 		}
 
 		return "redirect:/" + this.alias + "/index";
-	}
+	}*/
 
 	@RequestMapping(value = "/edit/{id}", method = RequestMethod.GET)
-	public ModelAndView edit(@PathVariable(value="id") Integer id, @ModelAttribute Skin skin, ModelMap model) {
+	public ModelAndView edit(@PathVariable(value="id") Integer id, @ModelAttribute Exam exam, ModelMap model) {
 		model.addAttribute("action", "edit/"+id);
-		model.addAttribute("title_for_layout", "Alterar etnia");
+		model.addAttribute("title_for_layout", "Alterar exame");
 
-		if(id == null || !skinService.exists(id)){
+		if(id == null || !examService.exists(id)){
 			model.addAttribute("mensagem", "Identificador inválido");
 			return new ModelAndView(this.alias + "/index");
 		}
 
-		Skin _skin = skinService.findByID(id);
+		Exam _exam = examService.findByID(id);
 
-		return new ModelAndView(this.alias + "/form", "skin", _skin);
+		return new ModelAndView(this.alias + "/form", "exam", _exam);
 	}
 
-	@RequestMapping(value="/edit/{id}", method = RequestMethod.POST)
-	public String editPost(@PathVariable(value="id") Integer id, @Valid Skin skin, BindingResult result, ModelMap model, RedirectAttributes ra) {
+	/*@RequestMapping(value="/edit/{id}", method = RequestMethod.POST)
+	public String editPost(@PathVariable(value="id") Integer id, @Valid Exam exam, BindingResult result, ModelMap model, RedirectAttributes ra) {
 		model.addAttribute("action", "edit/"+id);
-		model.addAttribute("title_for_layout", "Alterar etnia");
+		model.addAttribute("title_for_layout", "Alterar exame");
 
-		if(id == null || !skinService.exists(id)){
+		if(id == null || !examService.exists(id)){
 			model.addAttribute("mensagem", "Identificador inválido");
 			return this.alias + "/index";
 		}
 
-		Skin _skin = skinService.findByID(id);
+		Exam _exam = examService.findByID(id);
 
-		if(result.hasErrors() || skin == null){
+		if(result.hasErrors() || exam == null){
 			logger.debug("Dados invalidos");
-			model.put("skin", _skin);
+			model.put("exam", _exam);
 			return this.alias + "/form";
 		}else{
-			if(!skinService.edit(skin)){
+			if(!examService.edit(exam)){
 				model.addAttribute("message", "Não foi possível salvar");
-				model.put("skin", skin);
+				model.put("exam", exam);
 				return this.alias + "/form";
 			}else{
 				model.addAttribute("message", "O registro foi salvo com sucesso");
@@ -110,18 +112,18 @@ public class SkinController {
 		}
 
 		return "redirect:/" + this.alias + "/";
-	}
+	}*/
 
 	// TODO: aplicar metodo DELETE
 	@RequestMapping(value="/delete/{id}", method = RequestMethod.GET)
-	public String delete(@PathVariable(value="id") Integer id, @ModelAttribute Skin skin, ModelMap model) {
-		if(id == null || !skinService.exists(id)){
+	public String delete(@PathVariable(value="id") Integer id, @ModelAttribute Exam exam, ModelMap model) {
+		if(id == null || !examService.exists(id)){
 			model.addAttribute("mensagem", "Identificador inválido");
 			return "forward:/" + this.alias + "/";
 		}
 
 		// TODO: adicionar verificação de sucesso
-		skinService.delete(id);
+		examService.delete(id);
 
 		return "forward:/"+ this.alias + "/";
 	}

@@ -17,11 +17,11 @@ public class Skin {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
-	private Integer id;
+	private int id;
 
 	@Column(name = "title")
-	@NotEmpty(message="Informe o t�tulo")
-	@Size(max=45)
+	@NotEmpty(message="Informe o título")
+	@Size(min = 2, max = 45, message="Informe, no mínimo, 2 e, no máximo, 45 caracteres.")
 	private String title;
 
 
@@ -31,12 +31,12 @@ public class Skin {
 		this.title = title;
 	}
 
-	public Skin(Integer id, String title) {
+	public Skin(int id, String title) {
 		this.id = id;
 		this.title = title;
 	}
 
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 

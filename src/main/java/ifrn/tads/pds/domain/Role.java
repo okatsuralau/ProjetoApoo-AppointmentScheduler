@@ -10,19 +10,19 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-@Entity  
+@Entity
 @Table(name="role")
 public class Role {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
 	private int id;
-	
-	// TODO: validar por registros únicos
-	
+
+	// TODO: validar por registros Ãºnicos
+
 	@Column(name = "title", unique = true)
-	@NotEmpty(message="Informe o título")
-	@Size(min = 2, max = 45, message="Informe, no mínimo, 2 e, no máximo, 45 caracteres.")
+	@NotEmpty(message="Informe o tÃ­tulo")
+	@Size(min = 2, max = 45, message="Informe, no mÃ­nimo, 2 e, no mÃ¡ximo, 45 caracteres.")
 	private String title;
 
 	@Column(name = "slug")
@@ -63,12 +63,12 @@ public class Role {
 	}
 
 	public String getSlug() {
-		// TODO: criar, de fato, o slug do título
+		// TODO: criar, de fato, o slug do tÃ­tulo
 		this.slug = this.title;
 		if(this.slug.equalsIgnoreCase("") || this.slug == null){
 			this.slug = "";
 		}
-		
+
 		return slug;
 	}
 

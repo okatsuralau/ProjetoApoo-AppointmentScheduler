@@ -18,19 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service("educationlevelService")
 @Transactional
-public class EducationlevelService {
+public class EducationlevelService extends AppService {
 
-	protected static Logger logger = Logger.getLogger("service");
-	private JdbcTemplate jdbcTemplate;
-	private String tableName = "educationlevel";
-
-	@Resource(name = "dataSource")
-	public void setDataSource(DataSource dataSource) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
-	}
-
-	private JdbcTemplate getJdbcTemplate() {
-		return this.jdbcTemplate;
+	public EducationlevelService() {
+		this.tableName = "educationlevel";
 	}
 
 	public Educationlevel findByID(Integer id) {
@@ -38,15 +29,15 @@ public class EducationlevelService {
 		try{
 			String sql = "select * from "+ this.tableName +" where id = ?";
 			Educationlevel educationlevel = (Educationlevel) getJdbcTemplate().queryForObject(sql, new Object[] { id }, new BeanPropertyRowMapper(Educationlevel.class));
-	
+
 			return educationlevel;
 		}catch (EmptyResultDataAccessException e){
 			logger.debug("Nenhum registro encontrado para id = " + id);
             e.printStackTrace();
-	    }        
+	    }
 	    return null;
 	}
-	
+
 	public List<Educationlevel> findAll() {
 		logger.debug("Retrieving all educationlevels");
 
@@ -55,51 +46,37 @@ public class EducationlevelService {
 		return educationlevels;
 	}
 
-	public void add(Educationlevel educationlevel) {
+	public boolean add(Educationlevel educationlevel) {
 		logger.debug("Adding new educationlevel");
 
-		String sql = "insert into "+ this.tableName +" (title) values (:title)";
+		String sql = "INSERT INTO "+ this.tableName +" (title) VALUES (?)";
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("title", educationlevel.getTitle());
+		try{
+			getJdbcTemplate().update(sql, educationlevel.getTitle());
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+			return false;
+		}
 
-		getJdbcTemplate().update(sql, parameters);
+		return true;
 	}
-	
-	public void edit(Integer id, String title, String slug) {
+
+	public boolean edit(Educationlevel educationlevel) {
 		logger.debug("Editing existing educationlevel");
 
-		String sql = "update "+ this.tableName +" set title = :title "+ " where id = :id";
+		String sql = "UPDATE "+ this.tableName +" SET title = ? "+ " WHERE id = ?";
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("id", id);
-		parameters.put("title", title);
+		try{
+			getJdbcTemplate().update(
+				sql,
+				educationlevel.getTitle(),
+				educationlevel.getId()
+			);
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+			return false;
+		}
 
-		getJdbcTemplate().update(sql, parameters);
-	}
-
-	public void delete(Integer id) {
-		logger.debug("Deleting existing educationlevel");
-
-		String sql = "delete from "+ this.tableName +" where id = ?";
-		Object[] parameters = new Object[] { id };
-
-		getJdbcTemplate().update(sql, parameters);
-	}
-
-	public int findCount() {
-		String sql = "SELECT COUNT(*) FROM " + this.tableName;
-		int total = getJdbcTemplate().queryForInt(sql);
-
-		return total;
-	}
-	
-	public boolean exists(Integer id) {
-		logger.debug("Checking if educationlevel with id(" + id + ") exists");
-
-		String sql = "SELECT COUNT(*) FROM " + this.tableName +" where id = ?";
-		int total = getJdbcTemplate().queryForInt(sql, id);
-
-		return total > 0;
+		return true;
 	}
 }

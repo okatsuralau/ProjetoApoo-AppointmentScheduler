@@ -20,7 +20,7 @@
 
 		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato:100,300,400,700" />
 		<link rel="stylesheet" type="text/css" href="<c:url value='/resources/css/default.css'/>" />
-		
+
 		<script src="<c:url value='/resources/js/modernizr.custom.js' />"></script>
 	</head>
 	<body>
@@ -38,8 +38,10 @@
 								<div class="alert alert-info">${message}</div>
 							</c:if>
 
-							<!-- Conteúdo dinâmico da aplicação -->
-							<decorator:body/>
+							<div class="clearfix">
+								<!-- Conteúdo dinâmico da aplicação -->
+								<decorator:body/>
+							</div>
 
 	    					<jsp:include page="../Elements/footer.jsp" />
 						</main>

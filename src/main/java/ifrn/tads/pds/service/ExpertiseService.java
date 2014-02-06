@@ -18,88 +18,59 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service("expertiseService")
 @Transactional
-public class ExpertiseService {
+public class ExpertiseService extends AppService {
 
-	protected static Logger logger = Logger.getLogger("service");
-	private JdbcTemplate jdbcTemplate;
-	private String tableName = "expertise";
-
-	@Resource(name = "dataSource")
-	public void setDataSource(DataSource dataSource) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
-	}
-
-	private JdbcTemplate getJdbcTemplate() {
-		return this.jdbcTemplate;
+	public ExpertiseService() {
+		this.tableName = "expertise";
 	}
 
 	public Expertise findByID(Integer id) {
 		logger.debug("Retrieving expertise for id: " + id);
 		try{
-			String sql = "select * from "+ this.tableName +" where id = ?";
-			Expertise expertise = (Expertise) getJdbcTemplate().queryForObject(sql, new Object[] { id }, new BeanPropertyRowMapper(Expertise.class));
-	
-			return expertise;
+			String sql = "SELECT * FROM "+ this.tableName +" WHERE id = ?";
+			return (Expertise) getJdbcTemplate().queryForObject(sql, new Object[] { id }, new BeanPropertyRowMapper(Expertise.class));
 		}catch (EmptyResultDataAccessException e){
 			logger.debug("Nenhum registro encontrado para id = " + id);
             e.printStackTrace();
-	    }        
+	    }
 	    return null;
 	}
-	
+
 	public List<Expertise> findAll() {
 		logger.debug("Retrieving all expertises");
 
-		String sql = "select * from "+ this.tableName;
+		String sql = "SELECT * FROM "+ this.tableName;
 		List<Expertise> expertises = getJdbcTemplate().query(sql, new BeanPropertyRowMapper<Expertise>(Expertise.class));
 		return expertises;
 	}
 
-	public void add(Expertise expertise) {
+	public boolean add(Expertise expertise) {
 		logger.debug("Adding new expertise");
 
-		String sql = "insert into "+ this.tableName +" (title) values (:title)";
+		String sql = "INSERT INTO "+ this.tableName +" (title) VALUES (?)";
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("title", expertise.getTitle());
+		try{
+			getJdbcTemplate().update(sql, expertise.getTitle());
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+			return false;
+		}
 
-		getJdbcTemplate().update(sql, parameters);
+		return true;
 	}
-	
-	public void edit(Integer id, String title, String slug) {
+
+	public boolean edit(Expertise expertise) {
 		logger.debug("Editing existing expertise");
 
-		String sql = "update "+ this.tableName +" set title = :title "+ " where id = :id";
+		String sql = "UPDATE "+ this.tableName +" SET title = ? "+ " WHERE id = ?";
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("id", id);
-		parameters.put("title", title);
+		try{
+			getJdbcTemplate().update(sql, expertise.getTitle(), expertise.getId());
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+			return false;
+		}
 
-		getJdbcTemplate().update(sql, parameters);
-	}
-
-	public void delete(Integer id) {
-		logger.debug("Deleting existing expertise");
-
-		String sql = "delete from "+ this.tableName +" where id = ?";
-		Object[] parameters = new Object[] { id };
-
-		getJdbcTemplate().update(sql, parameters);
-	}
-
-	public int findCount() {
-		String sql = "SELECT COUNT(*) FROM " + this.tableName;
-		int total = getJdbcTemplate().queryForInt(sql);
-
-		return total;
-	}
-	
-	public boolean exists(Integer id) {
-		logger.debug("Checking if expertise with id(" + id + ") exists");
-
-		String sql = "SELECT COUNT(*) FROM " + this.tableName +" where id = ?";
-		int total = getJdbcTemplate().queryForInt(sql, id);
-
-		return total > 0;
+		return true;
 	}
 }

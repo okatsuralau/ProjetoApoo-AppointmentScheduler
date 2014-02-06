@@ -1,6 +1,6 @@
 package ifrn.tads.pds.service;
 
-import ifrn.tads.pds.domain.Skin;
+import ifrn.tads.pds.domain.Doctor;
 
 import java.util.List;
 
@@ -14,19 +14,19 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service("skinService")
+@Service("doctorService")
 @Transactional
-public class SkinService extends AppService {
+public class DoctorService extends AppService {
 
-	public SkinService() {
-		this.tableName = "skin";
+	public DoctorService() {
+		this.tableName = "doctor";
 	}
 
-	public Skin findByID(int id) {
-		logger.debug("Retrieving skin for id: " + id);
+	public Doctor findByID(int id) {
+		logger.debug("Retrieving doctor for id: " + id);
 		try{
 			String sql = "SELECT * FROM "+ this.tableName +" WHERE id = ?";
-			return (Skin) getJdbcTemplate().queryForObject(sql, new Object[] { id }, new BeanPropertyRowMapper(Skin.class));
+			return (Doctor) getJdbcTemplate().queryForObject(sql, new Object[] { id }, new BeanPropertyRowMapper(Doctor.class));
 		}catch (EmptyResultDataAccessException e){
 			logger.debug("Nenhum registro encontrado para id = " + id);
             e.printStackTrace();
@@ -34,20 +34,20 @@ public class SkinService extends AppService {
 	    return null;
 	}
 
-	public List<Skin> findAll() {
-		logger.debug("Retrieving all skins");
+	public List<Doctor> findAll() {
+		logger.debug("Retrieving all doctors");
 
 		String sql = "SELECT * FROM "+ this.tableName;
-		List<Skin> skins = getJdbcTemplate().query(sql, new BeanPropertyRowMapper<Skin>(Skin.class));
-		return skins;
+		List<Doctor> doctors = getJdbcTemplate().query(sql, new BeanPropertyRowMapper<Doctor>(Doctor.class));
+		return doctors;
 	}
 
-	public boolean add(Skin skin) {
-		logger.debug("Adding new skin");
+	/*public boolean add(Doctor doctor) {
+		logger.debug("Adding new doctor");
 
 		String sql = "INSERT INTO "+ this.tableName +" (title) VALUES (?)";
 		try{
-			getJdbcTemplate().update(sql, skin.getTitle());
+			getJdbcTemplate().update(sql, doctor.getTitle());
 		}catch(Exception e){
 			logger.debug(e.getMessage());
 			return false;
@@ -56,18 +56,18 @@ public class SkinService extends AppService {
 		return true;
 	}
 
-	public boolean edit(Skin skin) {
-		logger.debug("Editing existing skin");
+	public boolean edit(Doctor doctor) {
+		logger.debug("Editing existing doctor");
 
 		String sql = "UPDATE "+ this.tableName +" SET title = ? "+ " WHERE id = ?";
 
 		try{
-			getJdbcTemplate().update(sql, skin.getTitle(), skin.getId());
+			getJdbcTemplate().update(sql, doctor.getTitle(), doctor.getId());
 		}catch(Exception e){
 			logger.debug(e.getMessage());
 			return false;
 		}
 
 		return true;
-	}
+	}*/
 }

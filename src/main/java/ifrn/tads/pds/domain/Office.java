@@ -6,6 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -15,10 +16,11 @@ public class Office {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
-	private Integer id;
+	private int id;
 
 	@Column(name = "title")
-	@NotEmpty(message="Informe o t�tulo")
+	@NotEmpty(message="Informe o título")
+	@Size(min = 2, max = 10, message="Informe, no mínimo, 2 e, no máximo, 10 caracteres.")
 	private String title;
 
 
@@ -28,12 +30,12 @@ public class Office {
 		this.title = title;
 	}
 
-	public Office(Integer id, String title) {
+	public Office(int id, String title) {
 		this.id = id;
 		this.title = title;
 	}
 
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 

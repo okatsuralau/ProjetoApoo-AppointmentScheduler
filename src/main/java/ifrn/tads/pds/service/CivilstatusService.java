@@ -18,88 +18,59 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service("civilstatusService")
 @Transactional
-public class CivilstatusService {
-
-	protected static Logger logger = Logger.getLogger("service");
-	private JdbcTemplate jdbcTemplate;
-	private String tableName = "civilstatus";
-
-	@Resource(name = "dataSource")
-	public void setDataSource(DataSource dataSource) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
-	}
-
-	private JdbcTemplate getJdbcTemplate() {
-		return this.jdbcTemplate;
+public class CivilstatusService extends AppService {
+	
+	public CivilstatusService(){
+		this.tableName = "civilstatus";
 	}
 
 	public Civilstatus findByID(Integer id) {
 		logger.debug("Retrieving civilstatus for id: " + id);
 		try{
-			String sql = "select * from "+ this.tableName +" where id = ?";
-			Civilstatus civilstatus = (Civilstatus) getJdbcTemplate().queryForObject(sql, new Object[] { id }, new BeanPropertyRowMapper(Civilstatus.class));
-	
-			return civilstatus;
+			String sql = "SELECT * FROM "+ this.tableName +" WHERE id = ?";
+			return (Civilstatus) getJdbcTemplate().queryForObject(sql, new Object[] { id }, new BeanPropertyRowMapper(Civilstatus.class));
 		}catch (EmptyResultDataAccessException e){
 			logger.debug("Nenhum registro encontrado para id = " + id);
             e.printStackTrace();
-	    }        
+	    }
 	    return null;
 	}
-	
+
 	public List<Civilstatus> findAll() {
 		logger.debug("Retrieving all civilstatuss");
 
-		String sql = "select * from "+ this.tableName;
+		String sql = "SELECT * FROM "+ this.tableName;
 		List<Civilstatus> civilstatuss = getJdbcTemplate().query(sql, new BeanPropertyRowMapper<Civilstatus>(Civilstatus.class));
 		return civilstatuss;
 	}
 
-	public void add(Civilstatus civilstatus) {
+	public boolean add(Civilstatus civilstatus) {
 		logger.debug("Adding new civilstatus");
 
-		String sql = "insert into "+ this.tableName +" (title) values (:title)";
+		String sql = "INSERT INTO "+ this.tableName +" (title) VALUES (?)";
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("title", civilstatus.getTitle());
+		try{
+			getJdbcTemplate().update(sql, civilstatus.getTitle());
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+			return false;
+		}
 
-		getJdbcTemplate().update(sql, parameters);
+		return true;
 	}
-	
-	public void edit(Integer id, String title, String slug) {
+
+	public boolean edit(Civilstatus civilstatus) {
 		logger.debug("Editing existing civilstatus");
 
-		String sql = "update "+ this.tableName +" set title = :title "+ " where id = :id";
+		String sql = "UPDATE "+ this.tableName +" SET title = ? "+ " WHERE id = ?";
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("id", id);
-		parameters.put("title", title);
+		try{
+			getJdbcTemplate().update(sql, civilstatus.getTitle(), civilstatus.getId());
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+			return false;
+		}
 
-		getJdbcTemplate().update(sql, parameters);
-	}
-
-	public void delete(Integer id) {
-		logger.debug("Deleting existing civilstatus");
-
-		String sql = "delete from "+ this.tableName +" where id = ?";
-		Object[] parameters = new Object[] { id };
-
-		getJdbcTemplate().update(sql, parameters);
-	}
-
-	public int findCount() {
-		String sql = "SELECT COUNT(*) FROM " + this.tableName;
-		int total = getJdbcTemplate().queryForInt(sql);
-
-		return total;
-	}
-	
-	public boolean exists(Integer id) {
-		logger.debug("Checking if civilstatus with id(" + id + ") exists");
-
-		String sql = "SELECT COUNT(*) FROM " + this.tableName +" where id = ?";
-		int total = getJdbcTemplate().queryForInt(sql, id);
-
-		return total > 0;
+		return true;
 	}
 }

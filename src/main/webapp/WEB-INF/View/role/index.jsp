@@ -1,25 +1,34 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<html>
-<head>
-    <title><c:if test="${not empty title_for_layout}">${title_for_layout}</c:if></title>
-</head>
-<body>
-	
-	<c:url var="root" value="/role/"/>
-	<a href="${root}add" class="btn btn-primary">Inserir novo registro</a>
-	
-	<c:choose>
-	    <c:when test="${not empty roles}">
+
+<c:url var="model" value="role"/>
+<c:url var="root" value="/${model}/"/>
+<title> ${title_for_layout} </title>
+
+<h3 class="page-header">
+  	<a class="btn btn-sm btn-primary pull-right" href="${root}add">
+  		<i class="glyphicon glyphicon-plus"></i>
+  		<span class="hidden-xs">adicionar</span>
+  	</a>
+
+	<i class="glyphicon glyphicon-list"></i>
+	<c:if test="${not empty title_for_layout}">
+		${title_for_layout}
+	</c:if>
+</h3>
+
+<c:choose>
+    <c:when test="${not empty roles}">
+    	<div class="panel panel-default">
 	        <table class="croogo-table table table-striped table-hover no-mb">
 	           	<thead>
 	           		<th>ID</th>
 	           		<th>Título</th>
 	           	</thead>
 	           	<tbody>
-	           		<c:forEach var="registro" items="${roles}"> 
+	           		<c:forEach var="registro" items="${roles}">
 		                <tr>
 		                    <td>${registro.id}</td>
 							<td>${registro.title}</td>
@@ -39,15 +48,13 @@
 		                </tr>
 		            </c:forEach>
 	           	</tbody>
-	           </table>
-	    </c:when>
-	    <c:otherwise>
-	        <div class="jumbotron text-center">
-			    <h1><i class="icon-confused"></i></h1>
-			    <p class="lead">Nenhum registro encontrado</p>
-			</div>
-	    </c:otherwise>
-	</c:choose>
-
-</body>
-</html>
+			</table>
+		</div>
+    </c:when>
+    <c:otherwise>
+        <div class="jumbotron text-center">
+		    <h1><i class="icon-confused"></i></h1>
+		    <p class="lead">Nenhum registro encontrado</p>
+		</div>
+    </c:otherwise>
+</c:choose>

@@ -14,27 +14,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-//@Repository("officeDao")
 @Service("officeService")
 @Transactional
-public class OfficeService {
+public class OfficeService extends AppService {
 
-	protected static Logger logger = Logger.getLogger("service");
-	private JdbcTemplate jdbcTemplate;
-	private String tableName = "office";
-
-	@Resource(name = "dataSource")
-	public void setDataSource(DataSource dataSource) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
+	public OfficeService() {
+		this.tableName = "office";
 	}
 
-	// TODO: Utilizar JdbcDaoSupport
-	// http://www.mkyong.com/spring/spring-jdbctemplate-jdbcdaosupport-examples/
-	private JdbcTemplate getJdbcTemplate() {
-		return this.jdbcTemplate;
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Office findByID(int id) {
 		logger.debug("Retrieving office for id: " + id);
 		try{
@@ -43,10 +30,10 @@ public class OfficeService {
 		}catch (EmptyResultDataAccessException e){
 			logger.debug("Nenhum registro encontrado para id = " + id);
             e.printStackTrace();
-	    }        
+	    }
 	    return null;
 	}
-	
+
 	public List<Office> findAll() {
 		logger.debug("Retrieving all offices");
 
@@ -55,42 +42,32 @@ public class OfficeService {
 		return offices;
 	}
 
-	public void add(Office office) {
+	public boolean add(Office office) {
 		logger.debug("Adding new office");
-		
-		String sql = "INSERT INTO "+ this.tableName +" (title) VALUES (?)";
 
-		getJdbcTemplate().update(sql, office.getTitle());
+		String sql = "INSERT INTO "+ this.tableName +" (title) VALUES (?)";
+		try{
+			getJdbcTemplate().update(sql, office.getTitle());
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+			return false;
+		}
+
+		return true;
 	}
-	
-	public void edit(Office office) {
+
+	public boolean edit(Office office) {
 		logger.debug("Editing existing office");
 
 		String sql = "UPDATE "+ this.tableName +" SET title = ? "+ " WHERE id = ?";
 
-		getJdbcTemplate().update(sql, office.getTitle(), office.getId());
-	}
+		try{
+			getJdbcTemplate().update(sql, office.getTitle(), office.getId());
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+			return false;
+		}
 
-	public void delete(int id) {
-		logger.debug("Deleting existing office");
-
-		String sql = "DELETE FROM "+ this.tableName +" WHERE id = ?";
-		Object[] parameters = new Object[] { id };
-
-		getJdbcTemplate().update(sql, parameters);
-	}
-
-	public int findCount() {
-		String sql = "SELECT COUNT(*) FROM " + this.tableName;
-		int total = getJdbcTemplate().queryForObject(sql, Integer.class);
-
-		return total;
-	}
-	
-	public boolean exists(int id) {
-		String sql = "SELECT COUNT(*) FROM " + this.tableName +" WHERE id = ?";
-		int total = getJdbcTemplate().queryForObject(sql, Integer.class, id);
-
-		return total > 0;
+		return true;
 	}
 }

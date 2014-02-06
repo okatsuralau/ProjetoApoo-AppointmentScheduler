@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app id="WebApp_ID" version="3.0" 
+<web-app id="WebApp_ID" version="3.0"
 	xmlns="http://java.sun.com/xml/ns/javaee"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_3_0.xsd">
 	<!-- xmlns="http://java.sun.com/xml/ns/j2ee"  -->
-	
+
 	<!-- Define a página inicial -->
 	<display-name>PDS TADS, IFRN - PdsAppointmentScheduler</display-name>
 	<welcome-file-list>
-		<welcome-file>index.jsp</welcome-file>   
+		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
-	
+
 	<!-- Habilita o sistema de template SiteMesh -->
 	<filter>
     	<filter-name>sitemesh</filter-name>
@@ -22,7 +22,7 @@
 		<filter-name>sitemesh</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-	
+
 	<!-- Enconding helper filter -->
 	<filter>
 		<filter-name>encodingFilter</filter-name>
@@ -40,7 +40,7 @@
 		<filter-name>encodingFilter</filter-name>
 		<servlet-name>dispatcher</servlet-name>
 	</filter-mapping>
-	
+
 	<!-- Encoding utility -->
 	<jsp-config>
 		<jsp-property-group>
@@ -49,9 +49,9 @@
 			<trim-directive-whitespaces>true</trim-directive-whitespaces>
 		</jsp-property-group>
 	</jsp-config>
-	
-	<!-- 
-		Daqui pra frente é bruxaria. NÃO alterar!! 
+
+	<!--
+		Daqui pra frente é bruxaria. NÃO alterar!!
 	-->
 	<servlet>
 		<servlet-name>spring</servlet-name>
@@ -65,13 +65,13 @@
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
-	
+
 	<!-- Habilita o controle RESTfull (GET, POST, PUT, DELETE) -->
 	<filter>
 		<filter-name>hiddenHttpMethodFilter</filter-name>
 		<filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
 	</filter>
-	
+
 	<filter-mapping>
 		<filter-name>hiddenHttpMethodFilter</filter-name>
 		<servlet-name>spring</servlet-name>
