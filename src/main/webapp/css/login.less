@@ -1,0 +1,86 @@
+
+// Core variables and mixins
+@path-bootstrap : "../vendor/bootstrap/";
+@import "bootstrap-custom/variables";
+@body-bg: @gray-darker;
+
+// @import "bootstrap-custom/bootstrap-modules";
+@import "bootstrap-custom/mixins";
+@import "bootstrap-custom/utilities";
+@import "bootstrap-custom/type";
+@import "bootstrap-custom/forms";
+@import "bootstrap-custom/buttons";
+@import "bootstrap-custom/grid";
+// @import "bootstrap-custom/input-groups";
+@import "@{path-bootstrap}input-groups.less";
+@import "bootstrap-custom/tooltip";
+@import "bootstrap-custom/panels";
+@import "bootstrap-custom/scaffolding";
+@import "../vendor/icomoon/admin/style";
+
+body{
+	margin: 0;
+	background-image: url("@{base-url}img/admin/pattern-outlets.png");
+}
+
+//
+// Conteúdo do site (miolo)
+//
+
+
+//url("http://subtlepatterns.com/patterns/subtle_carbon.png") repeat scroll 0 0 rgba(0, 0, 0, 0)
+//
+//url("http://subtlepatterns.com/patterns/outlets.png")
+
+#croogo-login-wrapper{
+	margin:0 auto;
+	width: 350px;
+	min-height: 100%;
+	margin-bottom: -45px;
+	padding-bottom: 45px;
+	padding-top: 7%;
+}
+
+.forgot_password_link{
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	right: 10px;
+	top: 50%;
+	margin-top: -10px;
+	// border-radius: 50%;
+	// background: @gray-light;
+	color: @gray-light;
+	display: block;
+	text-align: center;
+	&:hover,
+	&:focus{
+		color: @gray-darker;
+		text-decoration: none;
+	}
+}
+
+footer{
+	text-align: right;
+
+	section{
+		display: inline-block;
+		padding: 10px 20px;
+
+		&:hover{
+			.creators{
+				.opacity(1);
+			}
+		}
+	}
+
+	.symbol,
+	.creators{
+		display: inline-block;
+		.transition(all 0.3s ease-in-out);
+	}
+
+	.creators{
+		.opacity(0);
+	}
+}

@@ -1,0 +1,81 @@
+//
+// Scaffolding
+// --------------------------------------------------
+@import "@{path-bootstrap}scaffolding.less";
+
+html, body{
+    .full-height() !important;
+}
+body{
+	font-weight: 300;
+}
+
+
+// Image thumbnails
+//
+.thumb img,
+.thumb-mini img,
+.thumb-small img,
+.thumb-large img {
+    height: auto;
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+
+//
+// Forms
+//
+label.control-label{
+	cursor: pointer;
+}
+
+
+.coverfly{
+    &,
+    & > img{
+        background-position: center;
+        background-size: cover;
+        background-repeat: none;
+    }
+}
+
+
+//
+// Forms
+//
+label.control-label{
+    cursor: pointer;
+}
+
+
+/*
+ TAGLIST : lista de tags e categorias
+*/
+.taglist{
+    max-height:187px;
+    overflow: auto;
+
+    .ui-button{
+        display: block;
+        text-align: left;
+    }
+}
+
+/*
+ BREADCRUMBS
+*/
+.breadcrumb{
+    .box-shadow(~"0 1px 5px rgba(0, 0, 0, 0.1), 0 -1px 0 rgba(0, 0, 0, 0.1) inset, 0 1px 0 rgba(255, 255, 255, 1) inset");
+
+    a:hover{
+        text-decoration: none;
+    }
+}
+
+
+/* Tables */
+
+.column-coverimage{
+    width: 100px;
+}

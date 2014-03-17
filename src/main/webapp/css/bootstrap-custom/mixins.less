@@ -1,0 +1,217 @@
+//
+// Mixins
+// --------------------------------------------------
+@import "@{path-bootstrap}mixins.less";
+
+.responsive-visibility() {
+	display: inline-block !important;
+	table&  { display: table; }
+	tr&     { display: table-row !important; }
+	th&,
+	td&     { display: table-cell !important; }
+}
+
+// Transformations
+  .transform(@values) {
+    -webkit-transform: @values;
+       -moz-transform: @values;
+        -ms-transform: @values;
+         -o-transform: @values;
+            transform: @values;
+  }
+
+  .border-radius(@radius) {
+    -webkit-border-radius: @radius;
+       -moz-border-radius: @radius;
+         -o-border-radius: @radius;
+            border-radius: @radius;
+  }
+
+// Background sizing
+.background-size(@size) {
+  -webkit-background-size: @size;
+     -moz-background-size: @size;
+       -o-background-size: @size;
+          background-size: @size;
+}
+
+// Spacements
+
+// Paddings
+  .set-padding(@index:1;@steps:1) when (@index > 0) {
+      @label: pd;
+      .@{label}@{index}{
+          padding: ~"@{index}px" !important;
+      }
+      .set-padding((@index - @steps); @steps);
+  }
+  .set-padding-top(@index:1;@steps:5) when (@index > 0) {
+      @label: pdt;
+      .@{label}@{index}{
+          padding-top: ~"@{index}px" !important;
+      }
+      .set-padding-top((@index - @steps); @steps);
+  }
+  .set-padding-right(@index:1;@steps:5) when (@index > 0) {
+      @label: pdr;
+      .@{label}@{index}{
+          padding-right: ~"@{index}px" !important;
+      }
+      .set-padding-right((@index - @steps); @steps);
+  }
+  .set-padding-bottom(@index:1;@steps:5) when (@index > 0) {
+      @label: pdb;
+      .@{label}@{index}{
+          padding-bottom: ~"@{index}px" !important;
+      }
+      .set-padding-bottom((@index - @steps); @steps);
+  }
+  .set-padding-left(@index:1;@steps:5) when (@index > 0) {
+      @label: pdl;
+      .@{label}@{index}{
+          padding-left: ~"@{index}px" !important;
+      }
+      .set-padding-left((@index - @steps); @steps);
+  }
+
+// Margins
+  .set-margin(@index:1;@steps:5) when (@index > 0) {
+      @label: mrg;
+      .@{label}@{index}{
+          margin: ~"@{index}px" !important;
+      }
+      .set-margin((@index - @steps); @steps);
+  }
+  .set-margin-top(@index:1;@steps:5) when (@index > 0) {
+      @label: mt;
+      .@{label}@{index}{
+          margin-top: ~"@{index}px" !important;
+      }
+      .set-margin-top((@index - @steps); @steps);
+  }
+  .set-margin-right(@index:1;@steps:5) when (@index > 0) {
+      @label: mr;
+      .@{label}@{index}{
+          margin-right: ~"@{index}px" !important;
+      }
+      .set-margin-right((@index - @steps); @steps);
+  }
+  .set-margin-bottom(@index:1;@steps:5) when (@index > 0) {
+      @label: mb;
+      .@{label}@{index}{
+          margin-bottom: ~"@{index}px" !important;
+      }
+      .set-margin-bottom((@index - @steps); @steps);
+  }
+  .set-margin-left(@index:1;@steps:5) when (@index > 0) {
+      @label: ml;
+      .@{label}@{index}{
+          margin-left: ~"@{index}px" !important;
+      }
+      .set-margin-left((@index - @steps); @steps);
+  }
+
+  // Negative Spacements
+  // Paddings
+  .set-neg-padding(@index:1;@steps:5) when (@index > 0) {
+      @label: npd;
+      .@{label}@{index}{
+          padding: ~"-@{index}px" !important;
+      }
+      .set-neg-padding((@index - @steps); @steps);
+  }
+  .set-neg-padding-top(@index:1;@steps:5) when (@index > 0) {
+      @label: npdt;
+      .@{label}@{index}{
+          padding-top: ~"-@{index}px" !important;
+      }
+      .set-neg-padding-top((@index - @steps); @steps);
+  }
+  .set-neg-padding-right(@index:1;@steps:5) when (@index > 0) {
+      @label: npdr;
+      .@{label}@{index}{
+          padding-right: ~"-@{index}px" !important;
+      }
+      .set-neg-padding-right((@index - @steps); @steps);
+  }
+  .set-neg-padding-bottom(@index:1;@steps:5) when (@index > 0) {
+      @label: npdb;
+      .@{label}@{index}{
+          padding-bottom: ~"-@{index}px" !important;
+      }
+      .set-neg-padding-bottom((@index - @steps); @steps);
+  }
+  .set-neg-padding-left(@index:1;@steps:5) when (@index > 0) {
+      @label: npdl;
+      .@{label}@{index}{
+          padding-left: ~"-@{index}px" !important;
+      }
+      .set-neg-padding-left((@index - @steps); @steps);
+  }
+
+  // Margins
+  .set-neg-margin(@index:1;@steps:5) when (@index > 0) {
+      @label: nmrg;
+      .@{label}@{index}{
+          margin: ~"-@{index}px" !important;
+      }
+      .set-neg-margin((@index - @steps); @steps);
+  }
+  .set-neg-margin-top(@index:1;@steps:5) when (@index > 0) {
+      @label: nmt;
+      .@{label}@{index}{
+          margin-top: ~"-@{index}px" !important;
+      }
+      .set-neg-margin-top((@index - @steps); @steps);
+  }
+  .set-neg-margin-right(@index:1;@steps:5) when (@index > 0) {
+      @label: nmr;
+      .@{label}@{index}{
+          margin-right: ~"-@{index}px" !important;
+      }
+      .set-neg-margin-right((@index - @steps); @steps);
+  }
+  .set-neg-margin-bottom(@index:1;@steps:5) when (@index > 0) {
+      @label: nmb;
+      .@{label}@{index}{
+          margin-bottom: ~"-@{index}px" !important;
+      }
+      .set-neg-margin-bottom((@index - @steps); @steps);
+  }
+  .set-neg-margin-left(@index:1;@steps:5) when (@index > 0) {
+      @label: nml;
+      .@{label}@{index}{
+          margin-left: ~"-@{index}px" !important;
+      }
+      .set-neg-margin-left((@index - @steps); @steps);
+  }
+
+.full-height(){
+    min-height: 100%;
+    height: 100%;
+}
+
+
+// Grid
+.make-grid-columns() {
+  // Common styles for all sizes of grid columns, widths 1-12
+  .col(@index) when (@index = 1) { // initial
+    @item: ~".col-sxs-@{index}";
+    .col((@index + 1), @item);
+  }
+  .col(@index, @list) when (@index =< @grid-columns) { // general; "=<" isn't a typo
+    @item: ~".col-sxs-@{index}";
+    .col((@index + 1), ~"@{list}, @{item}");
+  }
+  .col(@index, @list) when (@index > @grid-columns) { // terminal
+    @{list} {
+      position: relative;
+      // Prevent columns from collapsing when empty
+      min-height: 1px;
+      // Inner gutter via padding
+      padding-left:  (@grid-gutter-width / 2);
+      padding-right: (@grid-gutter-width / 2);
+    }
+  }
+  .col(1); // kickstart it
+}

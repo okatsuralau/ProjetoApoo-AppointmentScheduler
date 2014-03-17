@@ -1,0 +1,159 @@
+//
+// Responsive
+// --------------------------------------------------
+
+/* ==========================================================================
+Responsive
+========================================================================== */
+// 1200
+@media (max-width: @screen-md-max) {
+}
+
+@media (min-width: @screen-sm-max) and (max-width: @screen-md-max) {}
+
+// @media (max-width: 940px) {}
+@media (max-width: @screen-sm-max) {}
+
+@media (min-width: @screen-sm) and (max-width: @screen-sm-max) {
+}
+
+
+// 768px
+@media (max-width: @screen-xs-max) {
+   /* #sidebar{
+        position: static;
+        margin-top: 60px;
+        width: 100% !important;
+        height: auto;
+        .box-shadow(none);
+
+        #sidebar-menu {
+            margin-top: 0;
+            li{
+                list-style: none;
+            }
+            > li{
+                margin-right: 10px;
+
+                &.active:after{
+                    content: none;
+                }
+
+                > a,
+                &.sub-menu > a.collapsed{
+                    .border-radius(5px);
+                }
+            }
+            .nav-label{
+                width: auto;
+                position: static;
+                .opacity(1);
+            }
+
+        }
+    }
+
+    #main-content{
+        margin-left: 0 !important;
+        .main-wrapper{
+            margin-top: 10px;
+        }
+    }*/
+}
+
+@media (max-width: 720px) {}
+// Small tablet landscape (800x600)
+// ----------------------------------
+// @media (max-width: 800px) {}
+
+
+// PORTRAIT TABLET TO DEFAULT DESKTOP
+// ----------------------------------
+// @media (min-width: 768px) and (max-width: 979px) {}
+
+// Tablet portrait (768x1024): LANDSCAPE PHONE TO SMALL DESKTOP & PORTRAIT TABLET
+// --------------------------------------------------
+
+// @media (max-width: 768px) {body{padding:0!important}}
+
+
+// Mobile landscape (480x320): UP TO LANDSCAPE PHONE
+// ---------------------
+
+// @media (max-width: 480px) {}
+// Mobile portrait (320x480)
+// ---------------------
+// @media (max-width: 320px) {}
+@media (max-width: @screen-xs-max) {}
+
+// 480
+@media (max-width: (@screen-xs - 1)) {
+    /*#sidebar{
+        margin-top: 97px;
+    }
+
+    #header h1{
+        background    : @snow;
+        clear         : both;
+        display       : block;
+        float         : none;
+        margin-bottom : 0;
+        padding       : 10px 15px;
+        width         : 100%;
+    }
+
+    footer{
+        .creators{
+            .opacity(1);
+        }
+    }*/
+}
+@media (max-width: 413px) {}
+@media (max-width: 340px) {}
+
+
+// Visibility utilities
+
+.visible-xss {
+  .responsive-invisibility();
+  @media (max-width: (@screen-xs - 1)) {
+    .responsive-visibility();
+  }
+  /*&.visible-sm {
+    @media (min-width: @screen-sm) and (max-width: @screen-sm-max) {
+      .responsive-visibility();
+    }
+  }
+  &.visible-md {
+    @media (min-width: @screen-md) and (max-width: @screen-md-max) {
+      .responsive-visibility();
+    }
+  }
+  &.visible-lg {
+    @media (min-width: @screen-lg) {
+      .responsive-visibility();
+    }
+  }*/
+}
+
+.hidden-xss {
+  .responsive-visibility();
+  @media (max-width: (@screen-xs - 1)) {
+    .responsive-invisibility();
+  }
+  /*&.hidden-sm {
+    @media (min-width: @screen-sm) and (max-width: @screen-sm-max) {
+      .responsive-invisibility();
+    }
+  }
+  &.hidden-md {
+    @media (min-width: @screen-md) and (max-width: @screen-md-max) {
+      .responsive-invisibility();
+    }
+  }
+  &.hidden-lg {
+    @media (min-width: @screen-lg) {
+      .responsive-invisibility();
+    }
+  }*/
+}

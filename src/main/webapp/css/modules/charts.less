@@ -1,0 +1,38 @@
+//
+// Charts - Gráficos
+// --------------------------------------------------
+
+.chart-progress{
+	.chart{
+		.clearfix();
+		.badge{
+			font-size: 80%;
+			margin-right: 5px;
+		}
+	}
+
+	.progress-bar{
+		text-align: right;
+	}
+
+	// Themes
+	//
+	.progress-bar-success .badge{
+		.label-variant(darken(@label-success-bg, 8%));
+	}
+	.progress-bar-info .badge{
+		.label-variant(darken(@label-info-bg, 8%));
+	}
+	.progress-bar-warning .badge{
+		.label-variant(darken(@label-warning-bg, 8%));
+	}
+	.progress-bar-danger .badge{
+		.label-variant(darken(@label-danger-bg, 8%));
+	}
+	.progress-bar-default {
+		.progress-bar-variant(lighten(@label-default-bg, 8%));
+		.badge{
+			.label-variant(darken(@label-default-bg, 8%));
+		}
+	}
+}
