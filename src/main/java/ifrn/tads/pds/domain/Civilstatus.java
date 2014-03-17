@@ -6,19 +6,21 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-@Entity  
+@Entity
 @Table(name="civilstatus")
 public class Civilstatus {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
-	private Integer id;
+	private int id;
 
 	@Column(name = "title")
-	@NotEmpty(message="Informe o t�tulo")
+	@NotEmpty(message="Informe o título")
+	@Size(min = 2, max = 45, message="Informe, no mínimo, 2 e, no máximo, 45 caracteres.")
 	private String title;
 
 
@@ -28,12 +30,12 @@ public class Civilstatus {
 		this.title = title;
 	}
 
-	public Civilstatus(Integer id, String title) {
+	public Civilstatus(int id, String title) {
 		this.id = id;
 		this.title = title;
 	}
 
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -51,5 +53,14 @@ public class Civilstatus {
 
 	public String _toString() {
 		return this.title;
+	}
+	
+	// para o findList()
+	// TODO: tentar setar dinamicamente
+	public int getPrimaryKey() {
+		return this.getId();
+	}
+	public String getDisplayField() {
+		return this.getTitle();
 	}
 }

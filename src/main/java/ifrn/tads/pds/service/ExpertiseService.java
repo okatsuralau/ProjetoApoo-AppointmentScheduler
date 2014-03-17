@@ -2,104 +2,130 @@ package ifrn.tads.pds.service;
 
 import ifrn.tads.pds.domain.Expertise;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-
-import org.apache.log4j.Logger;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service("expertiseService")
 @Transactional
-public class ExpertiseService {
+public class ExpertiseService extends AppService<Expertise> {
 
-	protected static Logger logger = Logger.getLogger("service");
-	private JdbcTemplate jdbcTemplate;
-	private String tableName = "expertise";
-
-	@Resource(name = "dataSource")
-	public void setDataSource(DataSource dataSource) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
+	public ExpertiseService() {
+		this.tableName = "expertise";
+	}
+	
+	public Map<String, String> findList(JSONObject parameters) {
+		Map<String, String> map_list = new LinkedHashMap<String, String>();
+		List<Expertise> list_expertises = this.find("list", parameters);
+		
+		if(list_expertises != null && !list_expertises.isEmpty()){
+			// trata a saída dos dados para chavePrimária =>displayField
+			for (Expertise expertise : list_expertises) {
+				map_list.put(expertise.getPrimaryKey()+"", expertise.getDisplayField());
+			}
+		}
+		return map_list;
 	}
 
-	private JdbcTemplate getJdbcTemplate() {
-		return this.jdbcTemplate;
-	}
-
-	public Expertise findByID(Integer id) {
-		logger.debug("Retrieving expertise for id: " + id);
+	public boolean add(Expertise expertise) {
 		try{
-			String sql = "select * from "+ this.tableName +" where id = ?";
-			Expertise expertise = (Expertise) getJdbcTemplate().queryForObject(sql, new Object[] { id }, new BeanPropertyRowMapper(Expertise.class));
-	
-			return expertise;
-		}catch (EmptyResultDataAccessException e){
-			logger.debug("Nenhum registro encontrado para id = " + id);
-            e.printStackTrace();
-	    }        
-	    return null;
-	}
-	
-	public List<Expertise> findAll() {
-		logger.debug("Retrieving all expertises");
+			logger.debug("Adding new expertise");
 
-		String sql = "select * from "+ this.tableName;
-		List<Expertise> expertises = getJdbcTemplate().query(sql, new BeanPropertyRowMapper<Expertise>(Expertise.class));
-		return expertises;
-	}
+			String sql = this.getSqlUtil().buildInsert("title", "?", this.tableName);
+			
+			if( getJdbcTemplate().update(sql, expertise.getTitle()) != 1){
+				// TODO: tentar exibir detalhes do erro
+				logger.error("Não foi possível salvar o civilstatus");
+				return false;
+			}else{
+				List<Expertise> cache_by_action = this.getCacheByAction("all");
+				if(cache_by_action == null || cache_by_action.isEmpty()){
+					// Popula o cache local, caso esteja vazio
+					this.find("all");
+				}
 
-	public void add(Expertise expertise) {
-		logger.debug("Adding new expertise");
-
-		String sql = "insert into "+ this.tableName +" (title) values (:title)";
-
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("title", expertise.getTitle());
-
-		getJdbcTemplate().update(sql, parameters);
-	}
-	
-	public void edit(Integer id, String title, String slug) {
-		logger.debug("Editing existing expertise");
-
-		String sql = "update "+ this.tableName +" set title = :title "+ " where id = :id";
-
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("id", id);
-		parameters.put("title", title);
-
-		getJdbcTemplate().update(sql, parameters);
+				expertise.setId(this.lastInsertId());
+				this.putCacheByAction("all", expertise);
+				//logService.add(new Log(1, this.getLastInsertId(), this.tableName, "add", ""));
+				return true;
+			}
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+			return false;
+		}
 	}
 
-	public void delete(Integer id) {
-		logger.debug("Deleting existing expertise");
+	public boolean edit(Expertise expertise) {
+		try{
+			logger.debug("Editing existing expertise");
 
-		String sql = "delete from "+ this.tableName +" where id = ?";
-		Object[] parameters = new Object[] { id };
+			String sql = this.getSqlUtil().buildUpdate("title", "?", "id = ?", this.tableName);
 
-		getJdbcTemplate().update(sql, parameters);
+			if( getJdbcTemplate().update(sql, expertise.getTitle(), expertise.getId()) != 1){
+				logger.error("Não foi possível atualizar o civilstatus");
+				return false;
+			}else{
+				// atualiza o cache local
+				// TODO: atualizar em todos os caches possiveis
+				List<Expertise> cache_by_action = this.getCacheByAction("all");
+				if(cache_by_action != null && !cache_by_action.isEmpty()){
+					int indice = getArrayListIndex(expertise, cache_by_action);
+					if(indice > 0){
+						cache_by_action.set(indice, expertise);
+					}
+				}else{
+					// Popula o cache local, caso esteja vazio
+					this.find("all");
+				}
+				//logService.add(new Log(1, this.getLastInsertId(), this.tableName, "add", ""));
+				return true;
+			}
+		}catch(Exception e){
+			logger.error(e.getMessage());
+			return false;
+		}
 	}
 
-	public int findCount() {
-		String sql = "SELECT COUNT(*) FROM " + this.tableName;
-		int total = getJdbcTemplate().queryForInt(sql);
-
-		return total;
+	public boolean delete(Expertise entry) {
+		try{
+			logger.info("Deleting existing entry from "+ this.tableName );
+			
+			String sql = "DELETE FROM "+ this.tableName +" WHERE id = ?";
+			Object[] parameters = new Object[] { entry.getId() };
+			
+			if(getJdbcTemplate().update(sql, parameters) != 1){
+				logger.error("Não foi possível deletar o registro");
+				return false;
+			}else{
+				// atualiza o cache local
+				// TODO: eliminar de todos os caches possiveis
+				List<Expertise> cache_by_action = this.getCacheByAction("all");
+				if(cache_by_action != null && !cache_by_action.isEmpty()){
+					int indice = getArrayListIndex(entry, cache_by_action);
+					if(indice > 0){
+						cache_by_action.remove(indice);
+					}
+				}
+			}
+			return true;
+		}catch(Exception e){
+			logger.error(e.getMessage());
+			return false;
+		}
 	}
-	
-	public boolean exists(Integer id) {
-		logger.debug("Checking if expertise with id(" + id + ") exists");
 
-		String sql = "SELECT COUNT(*) FROM " + this.tableName +" where id = ?";
-		int total = getJdbcTemplate().queryForInt(sql, id);
-
-		return total > 0;
+	// Assume que os valores não são nulos
+	private int getArrayListIndex(Expertise compareTo, List<Expertise> compareWith){
+		int index = -1;
+		for (int i = 0; i < compareWith.size(); i++) {
+			if( compareWith.get(i).getId() == compareTo.getId() ){
+				return i; // return index
+			}
+		}
+		return index;
 	}
 }

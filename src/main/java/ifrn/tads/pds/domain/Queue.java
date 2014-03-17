@@ -7,33 +7,31 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.hibernate.validator.constraints.NotEmpty;
-
-@Entity  
+@Entity
 @Table(name="queue")
 public class Queue {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "id")
-	private Integer id;
+	@Column(name = "id", nullable = false)
+	private int id;
 
-	@Column(name = "title")
-	@NotEmpty(message="Informe o título")
-	private String title;
+	@Column(name = "datebook_id", nullable = false)
+	private int datebook_id;
 
+	private Datebook datebook;
 
 	public Queue() {}
 
-	public Queue(String title) {
-		this.title = title;
+	public Queue(int datebook_id) {
+		this.datebook_id = datebook_id;
 	}
 
-	public Queue(Integer id, String title) {
+	public Queue(int id, int datebook_id) {
 		this.id = id;
-		this.title = title;
+		this.datebook_id = datebook_id;
 	}
 
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -41,15 +39,28 @@ public class Queue {
 		this.id = id;
 	}
 
-	public String getTitle() {
-		return title;
+	public int getDatebook_id() {
+		return datebook_id;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
+	public void setDatebook_id(int datebook_id) {
+		this.datebook_id = datebook_id;
 	}
 
-	public String _toString() {
-		return this.title;
+	public Datebook getDatebook() {
+		return datebook;
+	}
+
+	public void setDatebook(Datebook datebook) {
+		this.datebook = datebook;
+	}
+	
+	// para o findList()
+	// TODO: tentar setar dinamicamente
+	public int getPrimaryKey() {
+		return this.getId();
+	}
+	public String getDisplayField() {
+		return this.getDatebook().getDisplayField();
 	}
 }

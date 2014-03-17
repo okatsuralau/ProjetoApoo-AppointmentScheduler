@@ -3,24 +3,31 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
+<c:url var="model" value="healthplan"/>
+<c:url var="root" value="/${model}/"/>
 
-	<c:if test="${not empty mensagem}">
-		<div class="alert alert-info">${mensagem}</div>
+<h3 class="page-header">
+  	<a class="btn btn-sm btn-primary pull-right" href="${root}add">
+  		<i class="glyphicon glyphicon-plus"></i>
+  		<span class="hidden-xs">adicionar</span>
+  	</a>
+
+	<i class="glyphicon glyphicon-list"></i>
+	<c:if test="${not empty title_for_layout}">
+		${title_for_layout}
 	</c:if>
+</h3>
 
-	<c:url var="model" value="individual"/>
-	<c:url var="root" value="/${model}/"/>
-	<a href="${root}add" class="btn btn-primary">Inserir novo registro</a>
-
-	<c:choose>
-	    <c:when test="${not empty offices}">
+<c:choose>
+    <c:when test="${not empty healthplans}">
+    	<div class="panel panel-default">
 	        <table class="croogo-table table table-striped table-hover no-mb">
 	           	<thead>
 	           		<th>ID</th>
 	           		<th>Título</th>
 	           	</thead>
 	           	<tbody>
-	           		<c:forEach var="registro" items="${offices}">
+	           		<c:forEach var="registro" items="${healthplans}">
 		                <tr>
 		                    <td>${registro.id}</td>
 							<td>${registro.title}</td>
@@ -40,13 +47,10 @@
 		                </tr>
 		            </c:forEach>
 	           	</tbody>
-	           </table>
-	    </c:when>
-	    <c:otherwise>
-	        <div class="jumbotron text-center">
-			    <h1><i class="icon-confused"></i></h1>
-			    <p class="lead">Nenhum registro encontrado</p>
-			</div>
-	    </c:otherwise>
-	</c:choose>
-
+			</table>
+		</div>
+    </c:when>
+    <c:otherwise>
+        <jsp:include page="../Elements/rowset_empty.jsp" />
+    </c:otherwise>
+</c:choose>

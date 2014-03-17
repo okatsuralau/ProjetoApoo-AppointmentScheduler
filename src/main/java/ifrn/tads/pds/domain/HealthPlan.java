@@ -15,10 +15,10 @@ public class HealthPlan {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
-	private Integer id;
+	private int id;
 
 	@Column(name = "title")
-	@NotEmpty(message="Informe o título")
+	@NotEmpty(message="Informe o tï¿½tulo")
 	private String title;
 
 
@@ -28,12 +28,12 @@ public class HealthPlan {
 		this.title = title;
 	}
 
-	public HealthPlan(Integer id, String title) {
+	public HealthPlan(int id, String title) {
 		this.id = id;
 		this.title = title;
 	}
 
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -51,5 +51,14 @@ public class HealthPlan {
 
 	public String _toString() {
 		return this.title;
+	}
+	
+	// para o findList()
+	// TODO: tentar setar dinamicamente
+	public int getPrimaryKey() {
+		return this.getId();
+	}
+	public String getDisplayField() {
+		return this.getTitle();
 	}
 }

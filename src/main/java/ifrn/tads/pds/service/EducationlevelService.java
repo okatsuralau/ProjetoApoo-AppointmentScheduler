@@ -2,104 +2,128 @@ package ifrn.tads.pds.service;
 
 import ifrn.tads.pds.domain.Educationlevel;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-
-import org.apache.log4j.Logger;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service("educationlevelService")
 @Transactional
-public class EducationlevelService {
+public class EducationlevelService extends AppService<Educationlevel> {
 
-	protected static Logger logger = Logger.getLogger("service");
-	private JdbcTemplate jdbcTemplate;
-	private String tableName = "educationlevel";
-
-	@Resource(name = "dataSource")
-	public void setDataSource(DataSource dataSource) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
+	public EducationlevelService() {
+		this.tableName = "educationlevel";
 	}
 
-	private JdbcTemplate getJdbcTemplate() {
-		return this.jdbcTemplate;
+	public Map<String, String> findList(JSONObject parameters) {
+		Map<String, String> map_list = new LinkedHashMap<String, String>();
+		List<Educationlevel> list_educationlevels = this.find("list", parameters, false);
+
+		if(list_educationlevels != null && !list_educationlevels.isEmpty()){
+			// trata a saída dos dados para chavePrimária =>displayField
+			for (Educationlevel educationlevel : list_educationlevels) {
+				map_list.put(educationlevel.getPrimaryKey()+"", educationlevel.getDisplayField());
+			}
+		}
+		return map_list;
 	}
 
-	public Educationlevel findByID(Integer id) {
-		logger.debug("Retrieving educationlevel for id: " + id);
+	public boolean add(Educationlevel educationlevel) {
 		try{
-			String sql = "select * from "+ this.tableName +" where id = ?";
-			Educationlevel educationlevel = (Educationlevel) getJdbcTemplate().queryForObject(sql, new Object[] { id }, new BeanPropertyRowMapper(Educationlevel.class));
-	
-			return educationlevel;
-		}catch (EmptyResultDataAccessException e){
-			logger.debug("Nenhum registro encontrado para id = " + id);
-            e.printStackTrace();
-	    }        
-	    return null;
+			logger.debug("Adding new "+ this.tableName);
+			String sql = this.getSqlUtil().buildInsert("title", "?", this.tableName);
+
+			if( getJdbcTemplate().update(sql, educationlevel.getTitle()) != 1){
+				logger.error("Não foi possível salvar o "+ this.tableName);
+				return false;
+			}else{
+				List<Educationlevel> cache_by_action = this.getCacheByAction("all");
+				if(cache_by_action == null || cache_by_action.isEmpty()){
+					// Popula o cache local, caso esteja vazio
+					this.find("all");
+				}
+
+				educationlevel.setId(this.lastInsertId());
+				this.putCacheByAction("all", educationlevel);
+				
+				return true;
+			}
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+			return false;
+		}
+	}
+
+	public boolean edit(Educationlevel educationlevel) {
+		try{
+			logger.debug("Editing existing "+ this.tableName);
+
+			String sql = this.getSqlUtil().buildUpdate("title", "?", "id = ?", this.tableName);
+
+			if( getJdbcTemplate().update(sql, educationlevel.getTitle(), educationlevel.getId()) != 1){
+				logger.error("Não foi possível atualizar o educationlevel");
+				return false;
+			}else{
+				// atualiza o cache local
+				// TODO: atualizar em todos os caches possiveis
+				List<Educationlevel> cache_by_action = this.getCacheByAction("all");
+				if(cache_by_action != null && !cache_by_action.isEmpty()){
+					int indice = getArrayListIndex(educationlevel, cache_by_action);
+					if(indice > 0){
+						cache_by_action.set(indice, educationlevel);
+					}
+				}else{
+					// Popula o cache local, caso esteja vazio
+					this.find("all");
+				}
+				//logService.add(new Log(1, this.getLastInsertId(), this.tableName, "add", ""));
+				return true;
+			}
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+			return false;
+		}
+	}
+
+	public boolean delete(Educationlevel entry) {
+		try{
+			logger.info("Deleting existing entry from "+ this.tableName );
+			
+			String sql = "DELETE FROM "+ this.tableName +" WHERE id = ?";
+			Object[] parameters = new Object[] { entry.getId() };
+			
+			if(getJdbcTemplate().update(sql, parameters) != 1){
+				logger.error("Não foi possível deletar o registro");
+				return false;
+			}else{
+				// atualiza o cache local
+				// TODO: eliminar de todos os caches possiveis
+				List<Educationlevel> cache_by_action = this.getCacheByAction("all");
+				if(cache_by_action != null && !cache_by_action.isEmpty()){
+					int indice = getArrayListIndex(entry, cache_by_action);
+					if(indice > 0){
+						cache_by_action.remove(indice);
+					}
+				}
+			}
+		}catch(Exception e){
+			logger.error(e.getMessage());
+			return false;
+		}
+		return true;
 	}
 	
-	public List<Educationlevel> findAll() {
-		logger.debug("Retrieving all educationlevels");
-
-		String sql = "select * from "+ this.tableName;
-		List<Educationlevel> educationlevels = getJdbcTemplate().query(sql, new BeanPropertyRowMapper<Educationlevel>(Educationlevel.class));
-		return educationlevels;
-	}
-
-	public void add(Educationlevel educationlevel) {
-		logger.debug("Adding new educationlevel");
-
-		String sql = "insert into "+ this.tableName +" (title) values (:title)";
-
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("title", educationlevel.getTitle());
-
-		getJdbcTemplate().update(sql, parameters);
-	}
-	
-	public void edit(Integer id, String title, String slug) {
-		logger.debug("Editing existing educationlevel");
-
-		String sql = "update "+ this.tableName +" set title = :title "+ " where id = :id";
-
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("id", id);
-		parameters.put("title", title);
-
-		getJdbcTemplate().update(sql, parameters);
-	}
-
-	public void delete(Integer id) {
-		logger.debug("Deleting existing educationlevel");
-
-		String sql = "delete from "+ this.tableName +" where id = ?";
-		Object[] parameters = new Object[] { id };
-
-		getJdbcTemplate().update(sql, parameters);
-	}
-
-	public int findCount() {
-		String sql = "SELECT COUNT(*) FROM " + this.tableName;
-		int total = getJdbcTemplate().queryForInt(sql);
-
-		return total;
-	}
-	
-	public boolean exists(Integer id) {
-		logger.debug("Checking if educationlevel with id(" + id + ") exists");
-
-		String sql = "SELECT COUNT(*) FROM " + this.tableName +" where id = ?";
-		int total = getJdbcTemplate().queryForInt(sql, id);
-
-		return total > 0;
+	// Assume que os valores não são nulos
+	private int getArrayListIndex(Educationlevel compareTo, List<Educationlevel> compareWith){
+		int index = -1;
+		for (int i = 0; i < compareWith.size(); i++) {
+			if( compareWith.get(i).getId() == compareTo.getId() ){
+				return i; // return index
+			}
+		}
+		return index;
 	}
 }

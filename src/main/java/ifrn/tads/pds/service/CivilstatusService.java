@@ -2,104 +2,134 @@ package ifrn.tads.pds.service;
 
 import ifrn.tads.pds.domain.Civilstatus;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-
-import org.apache.log4j.Logger;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.json.JSONObject;
+import org.springframework.jdbc.InvalidResultSetAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service("civilstatusService")
 @Transactional
-public class CivilstatusService {
+public class CivilstatusService extends AppService<Civilstatus> {
 
-	protected static Logger logger = Logger.getLogger("service");
-	private JdbcTemplate jdbcTemplate;
-	private String tableName = "civilstatus";
-
-	@Resource(name = "dataSource")
-	public void setDataSource(DataSource dataSource) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
+	public CivilstatusService(){
+		this.tableName = "civilstatus";
 	}
 
-	private JdbcTemplate getJdbcTemplate() {
-		return this.jdbcTemplate;
+	public Map<String, String> findList(JSONObject parameters) {
+		Map<String, String> map_list = new LinkedHashMap<String, String>();
+		List<Civilstatus> list_civilstatuses = this.find("list", parameters, false);
+
+		if(!list_civilstatuses.isEmpty()){
+			// trata a saída dos dados para chavePrimária =>displayField
+			for (Civilstatus civilstatus : list_civilstatuses) {
+				map_list.put(civilstatus.getPrimaryKey()+"", civilstatus.getDisplayField());
+			}
+		}
+		return map_list;
 	}
 
-	public Civilstatus findByID(Integer id) {
-		logger.debug("Retrieving civilstatus for id: " + id);
+	public boolean add(Civilstatus civilstatus) {
 		try{
-			String sql = "select * from "+ this.tableName +" where id = ?";
-			Civilstatus civilstatus = (Civilstatus) getJdbcTemplate().queryForObject(sql, new Object[] { id }, new BeanPropertyRowMapper(Civilstatus.class));
-	
-			return civilstatus;
-		}catch (EmptyResultDataAccessException e){
-			logger.debug("Nenhum registro encontrado para id = " + id);
-            e.printStackTrace();
-	    }        
-	    return null;
-	}
-	
-	public List<Civilstatus> findAll() {
-		logger.debug("Retrieving all civilstatuss");
+			logger.debug("Adding new "+ this.tableName);
+			
+			String sql = this.getSqlUtil().buildInsert("title", "?", this.tableName);
 
-		String sql = "select * from "+ this.tableName;
-		List<Civilstatus> civilstatuss = getJdbcTemplate().query(sql, new BeanPropertyRowMapper<Civilstatus>(Civilstatus.class));
-		return civilstatuss;
-	}
+			if( getJdbcTemplate().update(sql, civilstatus.getTitle()) != 1){
+				// TODO: tentar exibir detalhes do erro
+				logger.error("Não foi possível salvar o "+ this.tableName);
+				return false;
+			}else{
+				List<Civilstatus> cache_by_action = this.getCacheByAction("all");
+				if(cache_by_action == null || cache_by_action.isEmpty()){
+					// Popula o cache local, caso esteja vazio
+					this.find("all");
+				}
 
-	public void add(Civilstatus civilstatus) {
-		logger.debug("Adding new civilstatus");
+				civilstatus.setId(this.lastInsertId());
+				this.putCacheByAction("all", civilstatus);
 
-		String sql = "insert into "+ this.tableName +" (title) values (:title)";
-
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("title", civilstatus.getTitle());
-
-		getJdbcTemplate().update(sql, parameters);
-	}
-	
-	public void edit(Integer id, String title, String slug) {
-		logger.debug("Editing existing civilstatus");
-
-		String sql = "update "+ this.tableName +" set title = :title "+ " where id = :id";
-
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("id", id);
-		parameters.put("title", title);
-
-		getJdbcTemplate().update(sql, parameters);
+				//logService.add(new Log(1, civilstatus.getId(), this.tableName, "add", ""));
+				return true;
+			}
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+			return false;
+		}
 	}
 
-	public void delete(Integer id) {
-		logger.debug("Deleting existing civilstatus");
+	public boolean edit(Civilstatus civilstatus) {
+		try{
+			logger.debug("Editing existing civilstatus");
 
-		String sql = "delete from "+ this.tableName +" where id = ?";
-		Object[] parameters = new Object[] { id };
+			String sql = this.getSqlUtil().buildUpdate("title", "?", "id = ?", this.tableName);
 
-		getJdbcTemplate().update(sql, parameters);
+			if( getJdbcTemplate().update(sql, civilstatus.getTitle(), civilstatus.getId()) != 1){
+				logger.error("Não foi possível atualizar o civilstatus");
+				return false;
+			}else{
+				// atualiza o cache local
+				// TODO: atualizar em todos os caches possiveis
+				List<Civilstatus> cache_by_action = this.getCacheByAction("all");
+				if(cache_by_action != null && !cache_by_action.isEmpty()){
+					int indice = getArrayListIndex(civilstatus, cache_by_action);
+					if(indice > 0){
+						cache_by_action.set(indice, civilstatus);
+					}
+				}else{
+					// Popula o cache local, caso esteja vazio
+					this.find("all");
+				}
+				
+				//logService.add(new Log(1, this.getLastInsertId(), this.tableName, "add", ""));
+				return true;
+			}
+		}
+		catch (InvalidResultSetAccessException e){
+			logger.trace(e.getMessage());
+			return false;
+		}
 	}
 
-	public int findCount() {
-		String sql = "SELECT COUNT(*) FROM " + this.tableName;
-		int total = getJdbcTemplate().queryForInt(sql);
-
-		return total;
+	public boolean delete(Civilstatus entry) {
+		try{
+			logger.info("Deleting existing entry from "+ this.tableName );
+			
+			String sql = "DELETE FROM "+ this.tableName +" WHERE id = ?";
+			Object[] parameters = new Object[] { entry.getId() };
+			
+			if(getJdbcTemplate().update(sql, parameters) != 1){
+				logger.error("Não foi possível deletar o registro");
+				return false;
+			}else{
+				// atualiza o cache local
+				// TODO: eliminar de todos os caches possiveis
+				List<Civilstatus> cache_by_action = this.getCacheByAction("all");
+				if(cache_by_action != null && !cache_by_action.isEmpty()){
+					int indice = getArrayListIndex(entry, cache_by_action);
+					if(indice > 0){
+						cache_by_action.remove(indice);
+					}
+				}
+			}
+			return true;
+		}catch(Exception e){
+			logger.error(e.getMessage());
+			return false;
+		}
 	}
-	
-	public boolean exists(Integer id) {
-		logger.debug("Checking if civilstatus with id(" + id + ") exists");
 
-		String sql = "SELECT COUNT(*) FROM " + this.tableName +" where id = ?";
-		int total = getJdbcTemplate().queryForInt(sql, id);
-
-		return total > 0;
+	// Assume que os valores não são nulos
+	private int getArrayListIndex(Civilstatus compareTo, List<Civilstatus> compareWith){
+		int index = -1;
+		for (int i = 0; i < compareWith.size(); i++) {
+			if( compareWith.get(i).getId() == compareTo.getId() ){
+				return i; // return index
+			}
+		}
+		return index;
 	}
 }

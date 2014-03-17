@@ -4,28 +4,32 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.UniqueConstraint;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-@Entity  
-@Table(name="role")
+@Entity
+@Table(name = "role", uniqueConstraints = {
+	@UniqueConstraint(columnNames = "id"),
+	@UniqueConstraint(columnNames = "title")
+})
 public class Role {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
 	private int id;
-	
-	// TODO: validar por registros únicos
-	
-	@Column(name = "title", unique = true)
-	@NotEmpty(message="Informe o título")
-	@Size(min = 2, max = 45, message="Informe, no mínimo, 2 e, no máximo, 45 caracteres.")
+
+	// TODO: validar por registros Ãºnicos
+
+	@Column(name = "title", unique = true, nullable = false)
+	@NotEmpty(message="Informe o tÃ­tulo")
+	@Size(min = 2, max = 45, message="Informe, no mÃ­nimo, 2 e, no mÃ¡ximo, 45 caracteres.")
 	private String title;
 
-	@Column(name = "slug")
+	@Column(name = "slug", unique = true, nullable = false)
 	private String slug;
 
 	public Role() {}
@@ -63,12 +67,12 @@ public class Role {
 	}
 
 	public String getSlug() {
-		// TODO: criar, de fato, o slug do título
+		// TODO: criar, de fato, o slug do tÃ­tulo
 		this.slug = this.title;
 		if(this.slug.equalsIgnoreCase("") || this.slug == null){
 			this.slug = "";
 		}
-		
+
 		return slug;
 	}
 
@@ -78,5 +82,13 @@ public class Role {
 
 	public String toString() {
 		return this.title;
+	}
+	// para o findList()
+	// TODO: tentar setar dinamicamente
+	public int getPrimaryKey() {
+		return this.getId();
+	}
+	public String getDisplayField() {
+		return this.getTitle();
 	}
 }

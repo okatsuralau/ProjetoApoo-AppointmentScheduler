@@ -2,95 +2,134 @@ package ifrn.tads.pds.service;
 
 import ifrn.tads.pds.domain.Skin;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-
-import org.apache.log4j.Logger;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.json.JSONObject;
+import org.springframework.jdbc.InvalidResultSetAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-//@Repository("skinDao")
 @Service("skinService")
 @Transactional
-public class SkinService {
+public class SkinService extends AppService<Skin> {
 
-	protected static Logger logger = Logger.getLogger("service");
-	private JdbcTemplate jdbcTemplate;
-	private String tableName = "skin";
-
-	@Resource(name = "dataSource")
-	public void setDataSource(DataSource dataSource) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
+	public SkinService() {
+		this.tableName = "skin";
 	}
 
-	// TODO: Utilizar JdbcDaoSupport
-	// http://www.mkyong.com/spring/spring-jdbctemplate-jdbcdaosupport-examples/
-	private JdbcTemplate getJdbcTemplate() {
-		return this.jdbcTemplate;
+	public Map<String, String> findList(JSONObject parameters) {
+		Map<String, String> map_list = new LinkedHashMap<String, String>();
+		List<Skin> list_skins = this.find("list", parameters, false);
+
+		if(!list_skins.isEmpty()){
+			// trata a saída dos dados para chavePrimária =>displayField
+			for (Skin skin : list_skins) {
+				map_list.put(skin.getPrimaryKey()+"", skin.getDisplayField());
+			}
+		}
+		return map_list;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Skin findByID(int id) {
-		logger.debug("Retrieving skin for id: " + id);
+	public boolean add(Skin skin) {
 		try{
-			String sql = "SELECT * FROM "+ this.tableName +" WHERE id = ?";
-			return (Skin) getJdbcTemplate().queryForObject(sql, new Object[] { id }, new BeanPropertyRowMapper(Skin.class));
-		}catch (EmptyResultDataAccessException e){
-			logger.debug("Nenhum registro encontrado para id = " + id);
-            e.printStackTrace();
-	    }        
-	    return null;
-	}
-	
-	public List<Skin> findAll() {
-		logger.debug("Retrieving all skins");
+			logger.debug("Adding new "+ this.tableName);
+			
+			String sql = this.getSqlUtil().buildInsert("title", "?", this.tableName);
 
-		String sql = "SELECT * FROM "+ this.tableName;
-		List<Skin> skins = getJdbcTemplate().query(sql, new BeanPropertyRowMapper<Skin>(Skin.class));
-		return skins;
-	}
+			if( getJdbcTemplate().update(sql, skin.getTitle()) != 1){
+				// TODO: tentar exibir detalhes do erro
+				logger.error("Não foi possível salvar o "+ this.tableName);
+				return false;
+			}else{
+				List<Skin> cache_by_action = this.getCacheByAction("all");
+				if(cache_by_action == null || cache_by_action.isEmpty()){
+					// Popula o cache local, caso esteja vazio
+					this.find("all");
+				}
 
-	public void add(Skin skin) {
-		logger.debug("Adding new skin");
-		
-		String sql = "INSERT INTO "+ this.tableName +" (title) VALUES (?)";
+				skin.setId(this.lastInsertId());
+				this.putCacheByAction("all", skin);
 
-		getJdbcTemplate().update(sql, skin.getTitle());
-	}
-	
-	public void edit(Skin skin) {
-		logger.debug("Editing existing skin");
-
-		String sql = "UPDATE "+ this.tableName +" SET title = ? "+ " WHERE id = ?";
-
-		getJdbcTemplate().update(sql, skin.getTitle(), skin.getId());
+				//logService.add(new Log(1, skin.getId(), this.tableName, "add", ""));
+				return true;
+			}
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+			return false;
+		}
 	}
 
-	public void delete(int id) {
-		logger.debug("Deleting existing skin");
+	public boolean edit(Skin skin) {
+		try{
+			logger.debug("Editing existing skin");
 
-		String sql = "DELETE FROM "+ this.tableName +" WHERE id = ?";
-		Object[] parameters = new Object[] { id };
+			String sql = this.getSqlUtil().buildUpdate("title", "?", "id = ?", this.tableName);
 
-		getJdbcTemplate().update(sql, parameters);
+			if( getJdbcTemplate().update(sql, skin.getTitle(), skin.getId()) != 1){
+				logger.error("Não foi possível atualizar o skin");
+				return false;
+			}else{
+				// atualiza o cache local
+				// TODO: atualizar em todos os caches possiveis
+				List<Skin> cache_by_action = this.getCacheByAction("all");
+				if(cache_by_action != null && !cache_by_action.isEmpty()){
+					int indice = getArrayListIndex(skin, cache_by_action);
+					if(indice > 0){
+						cache_by_action.set(indice, skin);
+					}
+				}else{
+					// Popula o cache local, caso esteja vazio
+					this.find("all");
+				}
+				
+				//logService.add(new Log(1, this.getLastInsertId(), this.tableName, "add", ""));
+				return true;
+			}
+		}
+		catch (InvalidResultSetAccessException e){
+			logger.trace(e.getMessage());
+			return false;
+		}
 	}
 
-	public int findCount() {
-		String sql = "SELECT COUNT(*) FROM " + this.tableName;
-		int total = getJdbcTemplate().queryForObject(sql, Integer.class);
-
-		return total;
+	public boolean delete(Skin entry) {
+		try{
+			logger.info("Deleting existing entry from "+ this.tableName );
+			
+			String sql = "DELETE FROM "+ this.tableName +" WHERE id = ?";
+			Object[] parameters = new Object[] { entry.getId() };
+			
+			if(getJdbcTemplate().update(sql, parameters) != 1){
+				logger.error("Não foi possível deletar o registro");
+				return false;
+			}else{
+				// atualiza o cache local
+				// TODO: eliminar de todos os caches possiveis
+				List<Skin> cache_by_action = this.getCacheByAction("all");
+				if(cache_by_action != null && !cache_by_action.isEmpty()){
+					int indice = getArrayListIndex(entry, cache_by_action);
+					if(indice > 0){
+						cache_by_action.remove(indice);
+					}
+				}
+			}
+			return true;
+		}catch(Exception e){
+			logger.error(e.getMessage());
+			return false;
+		}
 	}
-	
-	public boolean exists(int id) {
-		String sql = "SELECT COUNT(*) FROM " + this.tableName +" WHERE id = ?";
-		int total = getJdbcTemplate().queryForObject(sql, Integer.class, id);
 
-		return total > 0;
+	// Assume que os valores não são nulos
+	private int getArrayListIndex(Skin compareTo, List<Skin> compareWith){
+		int index = -1;
+		for (int i = 0; i < compareWith.size(); i++) {
+			if( compareWith.get(i).getId() == compareTo.getId() ){
+				return i; // return index
+			}
+		}
+		return index;
 	}
 }

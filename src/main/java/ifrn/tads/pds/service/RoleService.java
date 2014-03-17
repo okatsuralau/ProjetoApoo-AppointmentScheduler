@@ -2,119 +2,134 @@ package ifrn.tads.pds.service;
 
 import ifrn.tads.pds.domain.Role;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-
-import org.apache.log4j.Logger;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.json.JSONObject;
+import org.springframework.jdbc.InvalidResultSetAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-//@Repository("roleDao")
 @Service("roleService")
 @Transactional
-public class RoleService {
+public class RoleService extends AppService<Role> {
 
-	protected static Logger logger = Logger.getLogger("service");
-	private JdbcTemplate jdbcTemplate;
-	private String tableName = "role";
-
-	@Resource(name = "dataSource")
-	public void setDataSource(DataSource dataSource) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
+	public RoleService() {
+		this.tableName = "role";
 	}
 
-	// TODO: Utilizar JdbcDaoSupport
-	// http://www.mkyong.com/spring/spring-jdbctemplate-jdbcdaosupport-examples/
-	private JdbcTemplate getJdbcTemplate() {
-		return this.jdbcTemplate;
-	}
+	public Map<String, String> findList(JSONObject parameters) {
+		Map<String, String> map_list = new LinkedHashMap<String, String>();
+		List<Role> list_roles = this.find("list", parameters, false);
 
-	
-	public Role findByID(int id) {
-		logger.debug("Retrieving role for id: " + id);
-		try{
-			String sql = "SELECT * FROM "+ this.tableName +" WHERE id = ?";
-			return (Role) getJdbcTemplate().queryForObject(sql, new Object[] { id }, new BeanPropertyRowMapper<Role>(Role.class));
-		}catch (EmptyResultDataAccessException e){
-			logger.debug("Nenhum registro encontrado para id = " + id);
-            e.printStackTrace();
-	    }        
-	    return null;
-	}
-	
-	public List<Role> findAll() {
-		logger.debug("Retrieving all roles");
-
-		String sql = "SELECT * FROM "+ this.tableName;
-		List<Role> roles = getJdbcTemplate().query(sql, new BeanPropertyRowMapper<Role>(Role.class));
-		return roles;
+		if(!list_roles.isEmpty()){
+			// trata a saída dos dados para chavePrimária =>displayField
+			for (Role role : list_roles) {
+				map_list.put(role.getPrimaryKey()+"", role.getDisplayField());
+			}
+		}
+		return map_list;
 	}
 
 	public boolean add(Role role) {
-		logger.debug("Adding new role");
-		
-		String sql = "INSERT INTO "+ this.tableName +" (title, slug) VALUES (?, ?)";
-		
 		try{
-			getJdbcTemplate().update(sql, role.getTitle(), role.getSlug());
+			logger.debug("Adding new "+ this.tableName);
+			
+			String sql = this.getSqlUtil().buildInsert("title, slug", "?, ?", this.tableName);
+
+			if( getJdbcTemplate().update(sql, role.getTitle(), role.getSlug()) != 1){
+				// TODO: tentar exibir detalhes do erro
+				logger.error("Não foi possível salvar o "+ this.tableName);
+				return false;
+			}else{
+				List<Role> cache_by_action = this.getCacheByAction("all");
+				if(cache_by_action == null || cache_by_action.isEmpty()){
+					// Popula o cache local, caso esteja vazio
+					this.find("all");
+				}
+
+				role.setId(this.lastInsertId());
+				this.putCacheByAction("all", role);
+
+				//logService.add(new Log(1, role.getId(), this.tableName, "add", ""));
+				return true;
+			}
 		}catch(Exception e){
 			logger.debug(e.getMessage());
 			return false;
 		}
-		
-		return true;
 	}
-	
+
 	public boolean edit(Role role) {
-		logger.debug("Editing existing role");
-
-		String sql = "UPDATE "+ this.tableName +" SET title = ?, "+ "slug = ? WHERE id = ?";
-
 		try{
-			getJdbcTemplate().update(sql, role.getTitle(), role.getSlug(), role.getId());
-		}catch(Exception e){
-			logger.debug(e.getMessage());
+			logger.debug("Editing existing role");
+
+			String sql = this.getSqlUtil().buildUpdate("title, slug", "?, ?", "id = ?", this.tableName);
+
+			if( getJdbcTemplate().update(sql, role.getTitle(), role.getSlug(), role.getId()) != 1){
+				logger.error("Não foi possível atualizar o role");
+				return false;
+			}else{
+				// atualiza o cache local
+				// TODO: atualizar em todos os caches possiveis
+				List<Role> cache_by_action = this.getCacheByAction("all");
+				if(cache_by_action != null && !cache_by_action.isEmpty()){
+					int indice = getArrayListIndex(role, cache_by_action);
+					if(indice > 0){
+						cache_by_action.set(indice, role);
+					}
+				}else{
+					// Popula o cache local, caso esteja vazio
+					this.find("all");
+				}
+				
+				//logService.add(new Log(1, this.getLastInsertId(), this.tableName, "add", ""));
+				return true;
+			}
+		}
+		catch (InvalidResultSetAccessException e){
+			logger.trace(e.getMessage());
 			return false;
 		}
-		
-		return true;
 	}
 
-	public boolean delete(int id) {
-		logger.debug("Deleting existing role");
-
-		String sql = "DELETE FROM "+ this.tableName +" WHERE id = ?";
-		Object[] parameters = new Object[] { id };
-		
+	public boolean delete(Role entry) {
 		try{
-			getJdbcTemplate().update(sql, parameters);
+			logger.info("Deleting existing entry from "+ this.tableName );
+			
+			String sql = "DELETE FROM "+ this.tableName +" WHERE id = ?";
+			Object[] parameters = new Object[] { entry.getId() };
+			
+			if(getJdbcTemplate().update(sql, parameters) != 1){
+				logger.error("Não foi possível deletar o registro");
+				return false;
+			}else{
+				// atualiza o cache local
+				// TODO: eliminar de todos os caches possiveis
+				List<Role> cache_by_action = this.getCacheByAction("all");
+				if(cache_by_action != null && !cache_by_action.isEmpty()){
+					int indice = getArrayListIndex(entry, cache_by_action);
+					if(indice > 0){
+						cache_by_action.remove(indice);
+					}
+				}
+			}
+			return true;
 		}catch(Exception e){
-			logger.debug(e.getMessage());
+			logger.error(e.getMessage());
 			return false;
 		}
-		return true;
 	}
 
-	@SuppressWarnings("deprecation")
-	public int findCount() {
-		String sql = "SELECT COUNT(*) FROM " + this.tableName;
-		int total = getJdbcTemplate().queryForInt(sql);
-
-		return total;
-	}
-	
-	@SuppressWarnings("deprecation")
-	public boolean exists(int id) {
-		String sql = "SELECT COUNT(*) FROM " + this.tableName +" WHERE id = ?";
-		int total = getJdbcTemplate().queryForInt(sql, id);
-
-		return total > 0;
+	// Assume que os valores não são nulos
+	private int getArrayListIndex(Role compareTo, List<Role> compareWith){
+		int index = -1;
+		for (int i = 0; i < compareWith.size(); i++) {
+			if( compareWith.get(i).getId() == compareTo.getId() ){
+				return i; // return index
+			}
+		}
+		return index;
 	}
 }

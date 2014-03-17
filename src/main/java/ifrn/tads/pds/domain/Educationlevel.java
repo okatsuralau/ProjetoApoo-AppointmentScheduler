@@ -6,21 +6,22 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-@Entity  
+@Entity
 @Table(name="educationlevel")
 public class Educationlevel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
-	private Integer id;
+	private int id;
 
-	@Column(name = "title")
-	@NotEmpty(message="Informe o t�tulo")
+	@Column(name = "title", unique = true, nullable = false)
+	@NotEmpty(message="Informe o título")
+	@Size(min = 2, max = 100, message="Informe, no mínimo, 2 e, no máximo, 100 caracteres.")
 	private String title;
-
 
 	public Educationlevel() {}
 
@@ -28,12 +29,12 @@ public class Educationlevel {
 		this.title = title;
 	}
 
-	public Educationlevel(Integer id, String title) {
+	public Educationlevel(int id, String title) {
 		this.id = id;
 		this.title = title;
 	}
 
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -51,5 +52,14 @@ public class Educationlevel {
 
 	public String _toString() {
 		return this.title;
+	}
+	
+	// para o findList()
+	// TODO: tentar setar dinamicamente
+	public int getPrimaryKey() {
+		return this.getId();
+	}
+	public String getDisplayField() {
+		return this.getTitle();
 	}
 }
