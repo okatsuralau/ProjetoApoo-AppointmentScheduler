@@ -45,7 +45,7 @@ public class AvailabilityController extends AppController{
 	@ResponseBody
 	@RequestMapping(value="/ajax/expertise/{expertise_id}", produces="application/json")
 	public String BuscarPorEspecialidade(@PathVariable(value="expertise_id") Integer expertise_id){
-		List<Availability> availabilities = availabilityService.find("all", new JSONObject().put("conditions", "expertise_id = "+ expertise_id));
+		List<Availability> availabilities = availabilityService.find("all", new JSONObject().put("conditions", "expertise_id = "+ expertise_id), true, false);
 		int size = availabilities == null ? 0 : availabilities.size();
 		if(availabilities == null) availabilities = new ArrayList<Availability>();
 
@@ -58,7 +58,7 @@ public class AvailabilityController extends AppController{
 	@ResponseBody
 	@RequestMapping(value="/ajax/doctor/{doctor_id}", produces="application/json")
 	public String BuscarPorMedico(@PathVariable(value="doctor_id") Integer doctor_id){
-		List<Availability> availabilities = availabilityService.find("all", new JSONObject().put("conditions", "doctor_id = "+ doctor_id));
+		List<Availability> availabilities = availabilityService.find("all", new JSONObject().put("conditions", "doctor_id = "+ doctor_id), true, false);
 		int size = availabilities == null ? 0 : availabilities.size();
 		if(availabilities == null) availabilities = new ArrayList<Availability>();
 
@@ -71,7 +71,7 @@ public class AvailabilityController extends AppController{
 	@ResponseBody
 	@RequestMapping(value="/ajax/office/{office_id}", produces="application/json")
 	public String BuscarPorSala(@PathVariable(value="office_id") Integer office_id){
-		List<Availability> availabilities = availabilityService.find("all", new JSONObject().put("conditions", "office_id = "+ office_id));
+		List<Availability> availabilities = availabilityService.find("all", new JSONObject().put("conditions", "office_id = "+ office_id), true, false);
 		int size = availabilities == null ? 0 : availabilities.size();
 		if(availabilities == null) availabilities = new ArrayList<Availability>();
 
