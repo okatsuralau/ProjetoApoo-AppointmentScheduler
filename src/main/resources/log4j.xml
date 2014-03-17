@@ -12,8 +12,15 @@
 	
 	<!-- Application Loggers -->
 	<logger name="ifrn.tads.pds">
-		<level value="info" />
+		<level value="trace" />
 	</logger>
+	<!-- <logger name="org.springframework.jdbc.core">
+		<level value="TRACE" />
+	</logger> -->
+	
+	<category name="org.springframework.jdbc.core.JdbcTemplate">
+    	<priority value="debug" />
+	</category>
 	
 	<!-- 3rdparty Loggers -->
 	<logger name="org.springframework.core">

@@ -7,6 +7,8 @@ ProjetoApoo-AppointmentScheduler
 TODO:
 =======
 
+- Repositório de busca de dependências: http://mvnrepository.com/
+
 * Escrever o guia de instalação das dependências necessárias para executar o projeto;
     * Maven;
     * Spring Tool Suite (opicional);
