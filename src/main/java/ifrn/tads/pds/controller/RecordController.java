@@ -31,7 +31,7 @@ public class RecordController {
 	@RequestMapping(value = {"", "/", "/index"})
 	public ModelAndView index(ModelMap model, HttpServletRequest request){
     	List<Record> record = recordService.find("all");
-    	model.addAttribute("title_for_layout", "Médicos");
+    	model.addAttribute("title_for_layout", "Prontuários");
     	return new ModelAndView(this.alias + "/index", "record", record);
 	}
 

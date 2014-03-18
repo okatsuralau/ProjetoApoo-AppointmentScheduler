@@ -31,7 +31,7 @@ public class QueueController {
 	@RequestMapping(value = {"", "/", "/index"})
 	public ModelAndView index(ModelMap model, HttpServletRequest request){
     	List<Queue> queue = queueService.find("all");
-    	model.addAttribute("title_for_layout", "Médicos");
+    	model.addAttribute("title_for_layout", "Fila de Atendimento");
     	return new ModelAndView(this.alias + "/index", "queue", queue);
 	}
 

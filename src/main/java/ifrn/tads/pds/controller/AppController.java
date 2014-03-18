@@ -97,12 +97,12 @@ public class AppController{
 		System.out.println("print test");
 		
 		chart_list.populateList(chart_list.itemChart("Estado civil", civilstatusService.findCount(), root+"civilstatus"));
-		chart_list.populateList(chart_list.itemChart("Agenda de consultas", datebookService.findCount(), root+"datebook"));
+		chart_list.populateList(chart_list.itemChart("Agenda de consultas", datebookService.findCount(), root+"datebook/add"));
 		chart_list.populateList(chart_list.itemChart("Médicos", doctorService.findCount(), root+"doctor"));
 		chart_list.populateList(chart_list.itemChart("Nível de escolaridade", educationlevelService.findCount(), root+"educationlevel"));
 		chart_list.populateList(chart_list.itemChart("Exames", examService.findCount(), root+"exam"));
 		chart_list.populateList(chart_list.itemChart("Especialidades", expertiseService.findCount(), root+"expertise"));
-		chart_list.populateList(chart_list.itemChart("Planos de saúde", healthPlanService.findCount(), root+"health_plan"));
+		chart_list.populateList(chart_list.itemChart("Planos de saúde", healthPlanService.findCount(), root+"healthplan"));
 		chart_list.populateList(chart_list.itemChart("Log de atividade", logService.findCount(), root+"log"));
 		chart_list.populateList(chart_list.itemChart("Salas", officeService.findCount(), root+"office"));
 		chart_list.populateList(chart_list.itemChart("Pacientes", patientService.findCount(), root+"patient"));

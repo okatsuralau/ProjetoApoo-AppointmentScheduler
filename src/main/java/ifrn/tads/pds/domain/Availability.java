@@ -1,7 +1,6 @@
 package ifrn.tads.pds.domain;
 
 import java.sql.Date;
-import java.sql.Time;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
