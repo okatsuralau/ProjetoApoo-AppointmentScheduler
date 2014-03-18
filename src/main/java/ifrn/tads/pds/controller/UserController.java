@@ -7,11 +7,18 @@ import ifrn.tads.pds.service.SkinService;
 import ifrn.tads.pds.service.EducationlevelService;
 import ifrn.tads.pds.service.CivilstatusService;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.List;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -19,6 +26,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -155,6 +164,44 @@ public class UserController extends AppController{
 
 		return "redirect:/" + this.alias + "/";
 	}
+	
+	// Download da imagem de perfil do usuário
+	@RequestMapping("/download/{id}")
+    public String download(@PathVariable("id") Integer id, HttpServletResponse response) {
+        User user = userService.findBy("id", id+"", null, true);
+        try {
+            response.setHeader("Content-Disposition", "inline;filename=\"" +user.getIndividual().getFirst_name() + "\"");
+            OutputStream out = response.getOutputStream();
+            response.setContentType(user.getPhotoType());
+            IOUtils.copy(user.getPhoto().getBinaryStream(), out);
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+	
+	@RequestMapping(value = "/savePhoto", method = RequestMethod.GET)
+    public String savePhoto() {
+		return "/" + this.alias + "/photo";
+    }
+	@RequestMapping(value = "/savePhoto", method = RequestMethod.POST)
+    public String savePhoto(@RequestParam("file") MultipartFile file) {
+        logger.warn("File:" + file.getName());
+        logger.warn("ContentType:" + file.getContentType());
+
+        if(!userService.savePhoto(file)){
+			logger.error("Não foi possível salvar");
+			return this.alias + "/savePhoto";
+		}else{
+			logger.info("O registro foi salvo com sucesso");
+		}
+
+        return "redirect:/" + this.alias + "/";
+    }
 
 	// TODO: aplicar metodo DELETE
 	@RequestMapping(value="/delete/{id}", method = RequestMethod.GET)

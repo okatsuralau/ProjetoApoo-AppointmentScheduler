@@ -1,6 +1,7 @@
 package ifrn.tads.pds.domain;
 
 import java.sql.Date;
+import java.sql.Blob;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Lob;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -35,6 +37,11 @@ public class User extends Individual{
 	private boolean deleted;
 	private Date created;
 	private Date modified;
+	@Column(name="photo")
+    @Lob
+    private Blob photo;
+	@Column(name="photo_type")
+    private String photoType;
 
 	// Associates
 	private Individual individual; // belongsTo
@@ -69,8 +76,7 @@ public class User extends Individual{
 		this.created = created;
 		this.modified = modified;
 	}
-	
-	
+
 	public int getId() {
 		return id;
 	}
@@ -156,6 +162,22 @@ public class User extends Individual{
 		this.modified = modified;
 	}
 	
+	public Blob getPhoto() {
+		return photo;
+	}
+
+	public void setPhoto(Blob photo) {
+		this.photo = photo;
+	}
+
+	public String getPhotoType() {
+		return photoType;
+	}
+
+	public void setPhotoType(String photoType) {
+		this.photoType = photoType;
+	}
+
 	@OneToOne(fetch = FetchType.LAZY)
 	@PrimaryKeyJoinColumn
 	public Individual getIndividual() {

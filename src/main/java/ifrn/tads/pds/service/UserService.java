@@ -4,6 +4,7 @@ import ifrn.tads.pds.domain.User;
 import ifrn.tads.pds.domain.Individual;
 import ifrn.tads.pds.domain.Role;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.InvalidResultSetAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service("userService")
 @Transactional
@@ -32,7 +34,7 @@ public class UserService extends AppService<User>{
 
 	// Insere no resultado da consulta, os objetos associados a este model
 	protected void setAssociates(User user){
-		Individual individual = individualService.findBy("id", user.getIndividual_id()+"", null, true);
+		Individual individual = individualService.findBy("id", user.getIndividual_id()+"", null, true, false);
 		if(individual != null){
 			user.setIndividual(individual);
 		}
@@ -55,7 +57,44 @@ public class UserService extends AppService<User>{
 		}
 		return map_list;
 	}
+	
+	// TODO: selecionar o usuário dinamicamente pelo formulário
+	public boolean savePhoto(MultipartFile file) {
+		try{
+			// Add new user
+			String sql = this.getSqlUtil().buildUpdate("photo, photo_type", "?, ?", "id = ?", this.tableName);
 
+			if(getJdbcTemplate().update(sql,
+				file.getBytes(),
+				file.getContentType(),
+				1 // mudar para o ID de um usuário dinâmico
+			) != 1){
+				// TODO: tentar exibir detalhes do erro
+				logger.error("Não foi possível salvar a photo do user");
+				return false;
+			}else{
+				logger.info("Ok, Salvou a foto");
+				// TODO: adicionar o dado da imagem no cache
+				//logService.add(new Log(1, user.getId(), this.tableName, "add", ""));
+				return true;
+			}
+		}
+		catch (InvalidResultSetAccessException e)
+		{
+			logger.trace( "InvalidResultSetAccessException: " + e.getMessage());
+			return false;
+		}
+		catch (DataAccessException e)
+		{
+			logger.trace( "DataAccessException: " + e.getMessage());
+			return false;
+		}
+		catch(IOException e){
+			logger.trace( "IOException: " + e.getMessage());
+			return false;
+		}
+	}
+	
 	public boolean add(User user) {
 		try{
 			int lastID = -1;

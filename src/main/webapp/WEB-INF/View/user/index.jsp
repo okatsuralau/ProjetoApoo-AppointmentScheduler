@@ -51,6 +51,9 @@
 									<ul role="menu" class="dropdown-menu text-left">
 										<li><a href="${root}edit/${registro.id}"><i class="icon-lg icon-pencil"></i> Editar</a></li>
 										<li><a href="${root}delete/${registro.id}"><i class="icon-lg trash"></i> Excluir</a></li>
+										<c:if test="${not empty registro.photo}">
+											<li><a href="${root}download/${registro.id}"><i class="icon-lg download icon-download"></i> Download Foto</a></li>
+										</c:if>
 									</ul>
 								</div>
 							</td>
